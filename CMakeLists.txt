@@ -36,5 +36,13 @@ install(
   DIRECTORY config description launch worlds
   DESTINATION share/${PROJECT_NAME}
 )
+# install python scripts
+install(PROGRAMS
+  scripts/lunabot_joy_teleop.py
+  DESTINATION lib/${PROJECT_NAME}
+  RENAME lunabot_joy_teleop
+)
+
+
 
 ament_package()

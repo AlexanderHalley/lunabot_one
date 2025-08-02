@@ -30,10 +30,10 @@ def generate_launch_description():
         package="twist_mux",
         executable="twist_mux",
         parameters=[twist_mux_params, {'use_sim_time': True}],
-        remappings=[('/cmd_vel_out', '/diff_cont/cmd_vel_unstamped')]
+        remappings=[('/cmd_vel_out', '/cmd_vel')]
     )
 
-    # 🗺️ Set the default world to 'obstacles.world'
+    # Default world
     default_world = os.path.join(
         get_package_share_directory(package_name),
         'worlds',
@@ -53,7 +53,7 @@ def generate_launch_description():
             os.path.join(get_package_share_directory('ros_gz_sim'), 'launch', 'gz_sim.launch.py')
         ]),
         launch_arguments={
-            'gz_args': ['-r -v4 ', world],
+            'gz_args': ['-r -v0 ', world],
             'on_exit_shutdown': 'true'
         }.items()
     )
@@ -65,18 +65,39 @@ def generate_launch_description():
         output='screen'
     )
 
-    diff_drive_spawner = Node(
-        package="controller_manager",
-        executable="spawner",
-        arguments=["diff_cont"]
-    )
-
+    # Spawner for joint_state_broadcaster
     joint_broad_spawner = Node(
         package="controller_manager",
         executable="spawner",
         arguments=["joint_broad"]
     )
 
+    # ✅ Spawners for the 4 wheel controllers
+    left_front_spawner = Node(
+        package="controller_manager",
+        executable="spawner",
+        arguments=["left_front_wheel_velocity_controller"]
+    )
+
+    right_front_spawner = Node(
+        package="controller_manager",
+        executable="spawner",
+        arguments=["right_front_wheel_velocity_controller"]
+    )
+
+    left_rear_spawner = Node(
+        package="controller_manager",
+        executable="spawner",
+        arguments=["left_rear_wheel_velocity_controller"]
+    )
+
+    right_rear_spawner = Node(
+        package="controller_manager",
+        executable="spawner",
+        arguments=["right_rear_wheel_velocity_controller"]
+    )
+
+    # ros_gz_bridge config
     bridge_params = os.path.join(get_package_share_directory(package_name), 'config', 'gz_bridge.yaml')
     ros_gz_bridge = Node(
         package="ros_gz_bridge",
@@ -94,6 +115,23 @@ def generate_launch_description():
         arguments=["/camera/image_raw"]
     )
 
+    four_wheel_controller = Node(
+        package='lunabot_one',
+        executable='four_wheel_drive_controller',
+        name='four_wheel_drive_controller',
+        output='screen',
+        parameters=[{'use_sim_time': True}]
+    )
+
+    # Added lunabot_joy_teleop node here
+    joy_teleop_node = Node(
+        package='lunabot_one',
+        executable='lunabot_joy_teleop',
+        name='lunabot_joy_teleop',
+        output='screen',
+        parameters=[{'use_sim_time': True}]
+    )
+
     return LaunchDescription([
         rsp,
         joystick,
@@ -101,8 +139,13 @@ def generate_launch_description():
         world_arg,
         gazebo,
         spawn_entity,
-        diff_drive_spawner,
         joint_broad_spawner,
+        left_front_spawner,
+        right_front_spawner,
+        left_rear_spawner,
+        right_rear_spawner,
         ros_gz_bridge,
-        ros_gz_image_bridge
+        ros_gz_image_bridge,
+        four_wheel_controller,
+        joy_teleop_node,  # <-- Added teleop here
     ])

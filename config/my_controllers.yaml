@@ -1,26 +1,48 @@
 controller_manager:
   ros__parameters:
-    update_rate: 30
-    # use_sim_time: true
+    update_rate: 100
+    use_sim_time: true
 
-    diff_cont:
-      type: diff_drive_controller/DiffDriveController
+    left_front_wheel_velocity_controller:
+      type: velocity_controllers/JointGroupVelocityController
+    
+    right_front_wheel_velocity_controller:
+      type: velocity_controllers/JointGroupVelocityController
+    
+    left_rear_wheel_velocity_controller:
+      type: velocity_controllers/JointGroupVelocityController
+    
+    right_rear_wheel_velocity_controller:
+      type: velocity_controllers/JointGroupVelocityController
 
     joint_broad:
       type: joint_state_broadcaster/JointStateBroadcaster
 
-diff_cont:
+# Individual wheel controllers
+left_front_wheel_velocity_controller:
   ros__parameters:
+    joints:
+      - left_front_wheel_joint
 
-    publish_rate: 50.0
+right_front_wheel_velocity_controller:
+  ros__parameters:
+    joints:
+      - right_front_wheel_joint
 
-    base_frame_id: base_link
+left_rear_wheel_velocity_controller:
+  ros__parameters:
+    joints:
+      - left_wheel_joint
 
-    # List both wheels per side here
-    left_wheel_names: ['left_wheel_joint', 'left_front_wheel_joint']
-    right_wheel_names: ['right_wheel_joint', 'right_front_wheel_joint']
+right_rear_wheel_velocity_controller:
+  ros__parameters:
+    joints:
+      - right_wheel_joint
 
-    wheel_separation: 0.297
-    wheel_radius: 0.033
-
-    # (other parameters remain unchanged)
+joint_broad:
+  ros__parameters:
+    joints:
+      - left_wheel_joint
+      - right_wheel_joint
+      - left_front_wheel_joint
+      - right_front_wheel_joint
