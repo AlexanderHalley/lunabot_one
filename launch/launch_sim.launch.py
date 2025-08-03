@@ -145,7 +145,6 @@ def generate_launch_description():
         left_rear_spawner,
         right_rear_spawner,
         ros_gz_bridge,
-        ros_gz_image_bridge,
         four_wheel_controller,
         joy_teleop_node,  # <-- Added teleop here
     ])

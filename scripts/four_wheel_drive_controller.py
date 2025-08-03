@@ -11,9 +11,10 @@ class FourWheelDriveController(Node):
         super().__init__('four_wheel_drive_controller')
         
         # Robot parameters (from your URDF)
-        self.wheel_radius = 0.1778  # meters
-        self.wheel_separation_y = 0.782  # distance between left and right wheels
-        self.wheel_separation_x = 0.864  # distance between front and rear wheels
+        self.wheel_radius = 0.033
+        self.wheel_separation_y = 0.297
+        self.wheel_separation_x = 0.452
+        # distance between front and rear wheels
         
         # Subscribe to cmd_vel
         self.cmd_vel_sub = self.create_subscription(
