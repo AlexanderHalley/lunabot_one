@@ -9,8 +9,8 @@
             <left_joint>left_front_wheel_joint left_wheel_joint</left_joint>
             <!-- List all right side wheels separated by spaces -->
             <right_joint>right_front_wheel_joint right_wheel_joint</right_joint>
-            <wheel_separation>0.297</wheel_separation>
-            <wheel_radius>0.033</wheel_radius>
+            <wheel_separation>0.782</wheel_separation>
+            <wheel_radius>0.1778</wheel_radius>
 
             <!-- Limits -->
             <!-- <max_wheel_torque>200</max_wheel_torque> -->

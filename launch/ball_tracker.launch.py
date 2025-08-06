@@ -14,8 +14,8 @@ def generate_launch_description():
     sim_mode = LaunchConfiguration('sim_mode')
     sim_mode_dec = DeclareLaunchArgument('sim_mode', default_value='false')
 
-    tracker_params_sim = os.path.join(get_package_share_directory(my_package_name),'config','ball_tracker_params_sim.yaml')
-    tracker_params_robot = os.path.join(get_package_share_directory(my_package_name),'config','ball_tracker_params_robot.yaml')
+    tracker_params_sim = os.path.join(get_package_share_directory(my_package_name),'config','params','ball_tracker_params_sim.yaml')
+    tracker_params_robot = os.path.join(get_package_share_directory(my_package_name),'config','params','ball_tracker_params_robot.yaml')
 
     params_path = PythonExpression(['"',tracker_params_sim, '" if "true" == "', sim_mode, '" else "', tracker_params_robot, '"'])
 

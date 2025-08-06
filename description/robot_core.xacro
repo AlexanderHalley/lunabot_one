@@ -20,10 +20,11 @@
     <xacro:property name="wheel_offset_z" value="0.0889"/>      <!-- ~3.5 in off ground -->
 
     <!-- Global contact/friction parameters -->
-    <xacro:property name="wheel_mu" value="1.0"/>
-    <xacro:property name="wheel_mu2" value="1.0"/>
-    <xacro:property name="wheel_kp" value="1000000"/>
-    <xacro:property name="wheel_kd" value="500"/>
+    <xacro:property name="wheel_mu" value="0.8"/>
+    <xacro:property name="wheel_mu2" value="0.8"/>
+    <xacro:property name="wheel_kp" value="1000000.0"/>
+    <xacro:property name="wheel_kd" value="1.0"/>
+    <xacro:property name="wheel_min_depth" value="0.001"/>
     <xacro:property name="wheel_slip1" value="0.01"/>
     <xacro:property name="wheel_slip2" value="0.01"/>
 
@@ -98,6 +99,7 @@
         <child link="left_front_wheel"/>
         <origin xyz="${wheel_offset_x - 0.05} ${wheel_offset_y} 0" rpy="-${pi/2} 0 0" />
         <axis xyz="0 0 1"/>
+        <dynamics damping="0.7" friction="0.3"/>
     </joint>
 
     <link name="left_front_wheel">
@@ -121,15 +123,24 @@
         <material>Gazebo/Blue</material>
         <mu>${wheel_mu}</mu>
         <mu2>${wheel_mu2}</mu2>
+        <fdir1>1 0 0</fdir1>
         <surface>
             <contact>
                 <ode>
                     <kp>${wheel_kp}</kp>
                     <kd>${wheel_kd}</kd>
+                    <min_depth>${wheel_min_depth}</min_depth>
                     <slip1>${wheel_slip1}</slip1>
                     <slip2>${wheel_slip2}</slip2>
                 </ode>
             </contact>
+            <friction>
+                <ode>
+                    <mu>${wheel_mu}</mu>
+                    <mu2>${wheel_mu2}</mu2>
+                    <fdir1>1 0 0</fdir1>
+                </ode>
+            </friction>
         </surface>
     </gazebo>
     
@@ -139,6 +150,7 @@
         <child link="right_front_wheel"/>
         <origin xyz="${wheel_offset_x - 0.05} ${-wheel_offset_y} 0" rpy="${pi/2} 0 0" />
         <axis xyz="0 0 -1"/>
+        <dynamics damping="0.7" friction="0.3"/>
     </joint>
 
     <link name="right_front_wheel">
@@ -162,15 +174,24 @@
         <material>Gazebo/Blue</material>
         <mu>${wheel_mu}</mu>
         <mu2>${wheel_mu2}</mu2>
+        <fdir1>1 0 0</fdir1>
         <surface>
             <contact>
                 <ode>
                     <kp>${wheel_kp}</kp>
                     <kd>${wheel_kd}</kd>
+                    <min_depth>${wheel_min_depth}</min_depth>
                     <slip1>${wheel_slip1}</slip1>
                     <slip2>${wheel_slip2}</slip2>
                 </ode>
             </contact>
+            <friction>
+                <ode>
+                    <mu>${wheel_mu}</mu>
+                    <mu2>${wheel_mu2}</mu2>
+                    <fdir1>1 0 0</fdir1>
+                </ode>
+            </friction>
         </surface>
     </gazebo>
 
@@ -180,6 +201,7 @@
         <child link="left_wheel"/>
         <origin xyz="${-wheel_offset_x + 0.05} ${wheel_offset_y} 0" rpy="-${pi/2} 0 0" />
         <axis xyz="0 0 1"/>
+        <dynamics damping="0.7" friction="0.3"/>
     </joint>
 
     <link name="left_wheel">
@@ -203,15 +225,24 @@
         <material>Gazebo/Blue</material>
         <mu>${wheel_mu}</mu>
         <mu2>${wheel_mu2}</mu2>
+        <fdir1>1 0 0</fdir1>
         <surface>
             <contact>
                 <ode>
                     <kp>${wheel_kp}</kp>
                     <kd>${wheel_kd}</kd>
+                    <min_depth>${wheel_min_depth}</min_depth>
                     <slip1>${wheel_slip1}</slip1>
                     <slip2>${wheel_slip2}</slip2>
                 </ode>
             </contact>
+            <friction>
+                <ode>
+                    <mu>${wheel_mu}</mu>
+                    <mu2>${wheel_mu2}</mu2>
+                    <fdir1>1 0 0</fdir1>
+                </ode>
+            </friction>
         </surface>
     </gazebo>
 
@@ -221,6 +252,7 @@
         <child link="right_wheel"/>
         <origin xyz="${-wheel_offset_x + 0.05} ${-wheel_offset_y} 0" rpy="${pi/2} 0 0" />
         <axis xyz="0 0 -1"/>
+        <dynamics damping="0.7" friction="0.3"/>
     </joint>
 
     <link name="right_wheel">
@@ -244,15 +276,24 @@
         <material>Gazebo/Blue</material>
         <mu>${wheel_mu}</mu>
         <mu2>${wheel_mu2}</mu2>
+        <fdir1>1 0 0</fdir1>
         <surface>
             <contact>
                 <ode>
                     <kp>${wheel_kp}</kp>
                     <kd>${wheel_kd}</kd>
+                    <min_depth>${wheel_min_depth}</min_depth>
                     <slip1>${wheel_slip1}</slip1>
                     <slip2>${wheel_slip2}</slip2>
                 </ode>
             </contact>
+            <friction>
+                <ode>
+                    <mu>${wheel_mu}</mu>
+                    <mu2>${wheel_mu2}</mu2>
+                    <fdir1>1 0 0</fdir1>
+                </ode>
+            </friction>
         </surface>
     </gazebo>
 

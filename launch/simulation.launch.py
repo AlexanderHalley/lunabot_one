@@ -3,7 +3,7 @@ import os
 from ament_index_python.packages import get_package_share_directory
 
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
+from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, TimerAction
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
@@ -25,12 +25,16 @@ def generate_launch_description():
         launch_arguments={'use_sim_time': 'true'}.items()
     )
 
-    twist_mux_params = os.path.join(get_package_share_directory(package_name), 'config', 'twist_mux.yaml')
+    twist_mux_params = os.path.join(get_package_share_directory(package_name), 'config', 'control', 'twist_mux.yaml')
     twist_mux = Node(
         package="twist_mux",
         executable="twist_mux",
-        parameters=[twist_mux_params, {'use_sim_time': True}],
-        remappings=[('/cmd_vel_out', '/cmd_vel')]
+        parameters=[twist_mux_params, {
+            'use_sim_time': True,
+            'use_stamped': False,
+            'publish_stamped': False
+        }],
+        remappings=[('/cmd_vel_out', '/cmd_vel_unstamped')]
     )
 
     # Default world
@@ -65,36 +69,23 @@ def generate_launch_description():
         output='screen'
     )
 
-    # Spawner for joint_state_broadcaster
-    joint_broad_spawner = Node(
-        package="controller_manager",
-        executable="spawner",
-        arguments=["joint_broad"]
+    # Spawner for joint_state_broadcaster (delayed to ensure controller manager is ready)
+    joint_broad_spawner = TimerAction(
+        period=3.0,
+        actions=[
+            Node(
+                package="controller_manager",
+                executable="spawner",
+                arguments=["joint_broad"]
+            )
+        ]
     )
 
-    # ✅ Spawners for the 4 wheel controllers
-    left_front_spawner = Node(
+    # ✅ New diff_drive_controller spawner
+    diff_drive_spawner = Node(
         package="controller_manager",
         executable="spawner",
-        arguments=["left_front_wheel_velocity_controller"]
-    )
-
-    right_front_spawner = Node(
-        package="controller_manager",
-        executable="spawner",
-        arguments=["right_front_wheel_velocity_controller"]
-    )
-
-    left_rear_spawner = Node(
-        package="controller_manager",
-        executable="spawner",
-        arguments=["left_rear_wheel_velocity_controller"]
-    )
-
-    right_rear_spawner = Node(
-        package="controller_manager",
-        executable="spawner",
-        arguments=["right_rear_wheel_velocity_controller"]
+        arguments=["diff_drive_controller"]
     )
 
     # ros_gz_bridge config
@@ -115,19 +106,22 @@ def generate_launch_description():
         arguments=["/camera/image_raw"]
     )
 
-    four_wheel_controller = Node(
-        package='lunabot_one',
-        executable='four_wheel_drive_controller',
-        name='four_wheel_drive_controller',
-        output='screen',
-        parameters=[{'use_sim_time': True}]
-    )
+    # Removed: four_wheel_drive_controller
 
-    # Added lunabot_joy_teleop node here
-    joy_teleop_node = Node(
+    # Disabled custom lunabot_joy_teleop - using standard teleop_twist_joy instead
+    # joy_teleop_node = Node(
+    #     package='lunabot_one',
+    #     executable='lunabot_joy_teleop',
+    #     name='lunabot_joy_teleop',
+    #     output='screen',
+    #     parameters=[{'use_sim_time': True}]
+    # )
+
+    # Relay node to convert Twist to TwistStamped
+    twist_relay = Node(
         package='lunabot_one',
-        executable='lunabot_joy_teleop',
-        name='lunabot_joy_teleop',
+        executable='twist_to_stamped_relay',
+        name='twist_to_stamped_relay',
         output='screen',
         parameters=[{'use_sim_time': True}]
     )
@@ -140,11 +134,8 @@ def generate_launch_description():
         gazebo,
         spawn_entity,
         joint_broad_spawner,
-        left_front_spawner,
-        right_front_spawner,
-        left_rear_spawner,
-        right_rear_spawner,
+        diff_drive_spawner,  #
         ros_gz_bridge,
-        four_wheel_controller,
-        joy_teleop_node,  # <-- Added teleop here
+        twist_relay,  # Convert Twist to TwistStamped
+        # joy_teleop_node,  # Disabled - using standard teleop instead
     ])

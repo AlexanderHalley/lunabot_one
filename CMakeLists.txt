@@ -38,9 +38,21 @@ install(
 )
 # install python scripts
 install(PROGRAMS
-  scripts/lunabot_joy_teleop.py
+  nodes/lunabot_joy_teleop.py
   DESTINATION lib/${PROJECT_NAME}
   RENAME lunabot_joy_teleop
+)
+
+install(PROGRAMS
+  nodes/twist_to_stamped_relay.py
+  DESTINATION lib/${PROJECT_NAME}
+  RENAME twist_to_stamped_relay
+)
+
+install(PROGRAMS
+  nodes/turning_diagnostics.py
+  DESTINATION lib/${PROJECT_NAME}
+  RENAME turning_diagnostics
 )
 
 
