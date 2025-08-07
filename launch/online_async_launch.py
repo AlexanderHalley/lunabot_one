@@ -1,7 +1,7 @@
 import os
 
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, LogInfo
+from launch.actions import DeclareLaunchArgument, LogInfo, ExecuteProcess, TimerAction
 from launch.conditions import UnlessCondition
 from launch.substitutions import LaunchConfiguration, PythonExpression
 from launch_ros.actions import Node
@@ -49,12 +49,31 @@ def generate_launch_description():
         name='slam_toolbox',
         output='screen')
 
+    configure_slam_toolbox = ExecuteProcess(
+        cmd=['ros2', 'service', 'call', '/slam_toolbox/change_state', 
+             'lifecycle_msgs/srv/ChangeState', '{transition: {id: 1}}'],
+        output='screen'
+    )
+
+    activate_slam_toolbox = TimerAction(
+        period=2.0,
+        actions=[
+            ExecuteProcess(
+                cmd=['ros2', 'service', 'call', '/slam_toolbox/change_state', 
+                     'lifecycle_msgs/srv/ChangeState', '{transition: {id: 3}}'],
+                output='screen'
+            )
+        ]
+    )
+
     ld = LaunchDescription()
 
     ld.add_action(declare_use_sim_time_argument)
     ld.add_action(declare_params_file_cmd)
     ld.add_action(log_param_change)
     ld.add_action(start_async_slam_toolbox_node)
+    ld.add_action(configure_slam_toolbox)
+    ld.add_action(activate_slam_toolbox)
 
     return ld
 
