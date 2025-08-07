@@ -1,10 +1,4 @@
-Currently getting an rviz error idk why and will look into: (might be my graphic drivers)
-[ERROR] [1754542333.222193370] [rviz2]: rviz/glsl120/indexed_8bit_image.vert
-rviz/glsl120/indexed_8bit_image.frag
- GLSL link result : 
-active samplers with a different type refer to the same texture image unit
-
-# Lunabot One - ROS2 Robot Simulation
+# Lunabot One - ROS2 Robot Simulation & Navigation
 
 ## Prerequisites
 - ROS2 Jazzy
@@ -14,7 +8,7 @@ active samplers with a different type refer to the same texture image unit
 ## Setup
 1. Build the workspace:
    ```bash
-   colcon build
+   colcon build --packages-select lunabot_one --symlink-install
    ```
 
 2. Source the workspace:
@@ -22,31 +16,79 @@ active samplers with a different type refer to the same texture image unit
    source install/setup.bash
    ```
 
-## Launch Instructions
+## Quick Navigation Setup (4-Tab Method)
 
-### 1. Start the Simulation
+### Tab 1: Start the Simulation
 Launch the robot in Gazebo simulation (includes Nintendo Switch controller support):
 ```bash
-ros2 launch lunabot_one simulation.launch.py
+ros2 launch lunabot_one simulation_launch.py
 ```
 
-### 2. Start SLAM (Mapping)
-In a new terminal, launch the SLAM toolbox for mapping:
+### Tab 2: Start Navigation
+In a new terminal, launch the navigation stack with your map:
 ```bash
-ros2 launch lunabot_one online_async_launch.py
+ros2 launch lunabot_one minimal_navigation_launch.py map:=/home/alexanderh/ros2_ws/src/lunabot_one/maps/saved_map.yaml
 ```
 
-### 3. Start Navigation (Nav2)
-In a new terminal, launch the navigation stack:
-```bash
-ros2 launch lunabot_one navigation_launch.py
-```
-
-### 4. Start RViz for Visualization
+### Tab 3: Start RViz for Visualization
 In a new terminal, launch RViz to visualize the robot and map:
 ```bash
 rviz2
 ```
+
+### Tab 4: Set Initial Pose (Required for Navigation)
+After launching navigation, set the robot's initial position:
+```bash
+ros2 topic pub --once /initialpose geometry_msgs/PoseWithCovarianceStamped '{
+  header: {frame_id: "map"},
+  pose: {
+    pose: {
+      position: {x: 0.0, y: 0.0, z: 0.0},
+      orientation: {x: 0.0, y: 0.0, z: 0.0, w: 1.0}
+    },
+    covariance: [0.25, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.25, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.06853892326654787]
+  }
+}'
+```
+
+## Autonomous Navigation
+
+Once setup is complete, navigate to goals using the Python script:
+```bash
+python3 scripts/navigate_to_goal.py <x> <y> [yaw_angle]
+```
+
+Example:
+```bash
+python3 scripts/navigate_to_goal.py 2.5 1.0
+```
+
+For detailed navigation instructions, see [NAVIGATION_README.md](NAVIGATION_README.md)
+
+## Alternative Launch Methods
+
+### For SLAM/Mapping (Create New Maps)
+If you want to create new maps instead of using existing ones:
+
+1. **Terminal 1 - Simulation:**
+   ```bash
+   ros2 launch lunabot_one simulation_launch.py
+   ```
+
+2. **Terminal 2 - SLAM:**
+   ```bash
+   ros2 launch lunabot_one slam_launch.py
+   ```
+
+3. **Terminal 3 - Visualization:**
+   ```bash
+   rviz2
+   ```
+
+4. **Drive around to map, then save:**
+   ```bash
+   ros2 run nav2_map_server map_saver_cli -f ~/ros2_ws/src/lunabot_one/maps/new_map
+   ```
 
 ## Robot Control Options
 
@@ -54,35 +96,29 @@ rviz2
 The controller support is automatically included in the simulation launch.
 
 ### Keyboard Teleop (Alternative)
-For keyboard control instead of the Nintendo Switch controller:
+For keyboard control instead of autonomous navigation:
 ```bash
 ros2 run teleop_twist_keyboard teleop_twist_keyboard --ros-args -r cmd_vel:=/diff_cont/cmd_vel_unstamped
 ```
 
-## Full Launch Sequence
-Open 4-5 terminals and run these commands in order:
+## Quick Reference
 
-1. **Terminal 1 - Simulation:**
-   ```bash
-   ros2 launch lunabot_one simulation.launch.py
-   ```
+**For Navigation (Recommended):**
+```bash
+# 4 terminals:
+ros2 launch lunabot_one simulation_launch.py
+ros2 launch lunabot_one minimal_navigation_launch.py map:=./maps/saved_map.yaml
+rviz2
+ros2 topic pub --once /initialpose [...]
 
-2. **Terminal 2 - SLAM:**
-   ```bash
-   ros2 launch lunabot_one online_async_launch.py
-   ```
+# Then navigate:
+python3 scripts/navigate_to_goal.py 2.0 1.0
+```
 
-3. **Terminal 3 - Navigation:**
-   ```bash
-   ros2 launch lunabot_one navigation_launch.py
-   ```
-
-4. **Terminal 4 - Visualization:**
-   ```bash
-   rviz2
-   ```
-
-5. **Terminal 5 - Keyboard Control (Optional):**
-   ```bash
-   ros2 run teleop_twist_keyboard teleop_twist_keyboard --ros-args -r cmd_vel:=/diff_cont/cmd_vel_unstamped
-   ```
+**For Mapping:**
+```bash
+# 3 terminals:
+ros2 launch lunabot_one simulation_launch.py
+ros2 launch lunabot_one slam_launch.py
+rviz2
+```
