@@ -39,7 +39,7 @@
         <sensor name="laser" type="gpu_lidar">
             <pose> 0 0 0 0 0 0 </pose>
             <visualize>false</visualize>
-            <update_rate>10</update_rate>
+            <update_rate>20</update_rate>
             <lidar>
                 <scan>
                     <horizontal>
@@ -49,7 +49,7 @@
                     </horizontal>
                 </scan>
                 <range>
-                    <min>0.3</min>
+                    <min>0.1</min>
                     <max>12</max>
                 </range>
             </lidar>
