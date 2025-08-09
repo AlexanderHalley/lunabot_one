@@ -1,0 +1,66 @@
+# ODrive S1 Motor Parameters
+# Configure each motor's operational parameters
+
+# Default motor parameters for all ODrives
+# These should be tuned based on your specific motors
+default_motor_config:
+  # Current limits (Amps)
+  current_limit: 10.0          # Motor current limit
+  current_limit_tolerance: 1.25 # Tolerance multiplier
+  
+  # Velocity limits (turns/s) 
+  velocity_limit: 10.0         # Maximum motor velocity
+  
+  # Control parameters
+  torque_constant: 0.04        # Motor torque constant (Nm/A)
+  pole_pairs: 7                # Number of pole pairs (motor dependent)
+  
+  # Safety parameters
+  calibration_timeout: 30.0    # Calibration timeout (seconds)
+  enable_watchdog: true        # Enable communication watchdog
+  watchdog_timeout: 1.0        # Watchdog timeout (seconds)
+
+# Individual motor configurations (inherits from default)
+motors:
+  front_left:
+    # Override default parameters if needed for specific motor
+    current_limit: 10.0
+    velocity_limit: 10.0
+    
+  front_right:
+    current_limit: 10.0
+    velocity_limit: 10.0
+    
+  rear_left:
+    current_limit: 10.0
+    velocity_limit: 10.0
+    
+  rear_right:
+    current_limit: 10.0  
+    velocity_limit: 10.0
+
+# Control loop parameters
+control_parameters:
+  # Position control gains (if using position mode)
+  pos_gain: 20.0
+  vel_gain: 0.16
+  vel_integrator_gain: 0.32
+  
+  # Velocity control gains (primary mode for diff drive)
+  vel_gain: 0.16
+  vel_integrator_gain: 0.32
+  
+  # Current control gains (typically don't need adjustment)
+  current_gain: 0.0312
+  current_integrator_gain: 39.1
+
+# Encoder parameters (for ODrive S1 built-in encoder)
+encoder:
+  counts_per_rev: 8192         # ODrive S1 internal encoder resolution
+  use_index: false             # ODrive S1 doesn't have index pulse
+  
+# Startup sequence parameters  
+startup:
+  calibration_required: true   # Perform motor calibration on startup
+  auto_enable_on_startup: true # Automatically enable motors after calibration
+  max_startup_time: 60.0       # Maximum time to wait for all motors ready (seconds)

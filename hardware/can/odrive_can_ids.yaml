@@ -1,0 +1,43 @@
+# ODrive CAN ID Configuration
+# Each ODrive S1 has a unique CAN ID for communication
+# This file maps physical wheel positions to CAN IDs
+
+can_bus:
+  interface: "can0"
+  bitrate: 1000000  # 1 Mbps
+
+odrive_nodes:
+  front_left:
+    can_id: 0x001  # CAN ID 1
+    axis_id: 0     # Always 0 for ODrive S1 (single axis)
+    direction: 1   # 1 = forward, -1 = reverse
+    
+  front_right:
+    can_id: 0x002  # CAN ID 2  
+    axis_id: 0
+    direction: -1  # Reverse for right side wheels
+    
+  rear_left:
+    can_id: 0x003  # CAN ID 3
+    axis_id: 0
+    direction: 1
+    
+  rear_right:
+    can_id: 0x004  # CAN ID 4
+    axis_id: 0  
+    direction: -1  # Reverse for right side wheels
+
+# Differential drive configuration
+# Left side: front_left + rear_left
+# Right side: front_right + rear_right
+diff_drive:
+  left_wheels: ["front_left", "rear_left"]
+  right_wheels: ["front_right", "rear_right"]
+  
+  # Robot physical parameters (update with actual measurements)
+  wheel_separation: 0.782  # Distance between left and right wheels (m)
+  wheel_radius: 0.165      # Wheel radius (m)
+  
+  # Control parameters  
+  max_velocity: 2.0        # Maximum linear velocity (m/s)
+  max_angular_velocity: 2.0 # Maximum angular velocity (rad/s)
