@@ -3,6 +3,26 @@ import os
 from launch import LaunchDescription
 from launch_ros.actions import Node
 
+'''
+'Intent was to take /camera/depth/points messages published by the depth camera, 
+and translate them from sensor_msgs/msgs/Image to sensor_msgs/msgs/Pointcloud2 for Rviz2 visualization'
+Requires downloading depth_image_proc
+To install, run: sudo apt install ros-jazzy-depth-image-proc
+
+def generate_launch_description():
+
+    return LaunchCescription([
+
+        Node(
+            package='depth_image_proc',
+            executable='point_cloudexyzgrb_noe',
+            name="point_cloud_xyzgrb",
+            remappings=[
+                ('points', '/camera/depth/pointcloud')
+            ]
+    )
+    ])
+'''
 def generate_launch_description():
 
 
