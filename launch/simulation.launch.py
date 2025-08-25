@@ -103,7 +103,8 @@ def generate_launch_description():
     ros_gz_image_bridge = Node(
         package="ros_gz_image",
         executable="image_bridge",
-        arguments=["/camera/image_raw"]
+        arguments=["/camera/depth/image_raw", "camera/depth/points"
+                  ]
     )
 
     # Removed: four_wheel_drive_controller
@@ -136,6 +137,7 @@ def generate_launch_description():
         joint_broad_spawner,
         diff_drive_spawner,  #
         ros_gz_bridge,
+        ros_gz_image_bridge,
         twist_relay,  # Convert Twist to TwistStamped
         # joy_teleop_node,  # Disabled - using standard teleop instead
     ])
