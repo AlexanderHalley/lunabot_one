@@ -100,11 +100,56 @@ def generate_launch_description():
         ]
     )
 
+    # Bridge for RGB image (match actual Gazebo topic)
     ros_gz_image_bridge = Node(
         package="ros_gz_image",
         executable="image_bridge",
-        arguments=["/camera/depth/image_raw", "camera/depth/points"
-                  ]
+        arguments=["camera/image"],
+        remappings=[
+            ("camera/image", "camera/image_raw")
+        ],
+        output='screen'
+    )
+    
+    # Bridge for depth image
+    ros_gz_depth_bridge = Node(
+        package="ros_gz_image",
+        executable="image_bridge", 
+        arguments=["camera/depth_image"],
+        remappings=[
+            ("camera/depth_image", "camera/depth/image_raw")
+        ],
+        output='screen'
+    )
+    
+    # Bridge for point cloud (use actual Gazebo topic with frame correction)
+    ros_gz_pointcloud_bridge = Node(
+        package="ros_gz_bridge",
+        executable="parameter_bridge",
+        arguments=[
+            "camera/points@sensor_msgs/msg/PointCloud2@gz.msgs.PointCloudPacked"
+        ],
+        remappings=[
+            ("camera/points", "camera/depth/points")
+        ],
+        parameters=[
+            {"qos_overrides./camera/points.subscription.reliability": "best_effort"}
+        ],
+        output='screen'
+    )
+    
+    
+    # Bridge for camera info
+    ros_gz_camera_info_bridge = Node(
+        package="ros_gz_bridge",
+        executable="parameter_bridge",
+        arguments=[
+            "camera_info@sensor_msgs/msg/CameraInfo@gz.msgs.CameraInfo"
+        ],
+        remappings=[
+            ("camera_info", "camera/camera_info")
+        ],
+        output='screen'
     )
 
     # Removed: four_wheel_drive_controller
@@ -138,6 +183,9 @@ def generate_launch_description():
         diff_drive_spawner,  #
         ros_gz_bridge,
         ros_gz_image_bridge,
+        ros_gz_depth_bridge,
+        ros_gz_pointcloud_bridge,
+        ros_gz_camera_info_bridge,
         twist_relay,  # Convert Twist to TwistStamped
         # joy_teleop_node,  # Disabled - using standard teleop instead
     ])

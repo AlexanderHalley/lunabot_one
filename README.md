@@ -122,3 +122,75 @@ ros2 launch lunabot_one simulation_launch.py
 ros2 launch lunabot_one slam_launch.py
 rviz2
 ```
+
+## RGBD Depth Camera
+
+The robot includes a working RGBD depth camera that provides both color and depth information for mapping and navigation.
+
+### Camera Topics
+- `/camera/image_raw` - RGB color image feed (sensor_msgs/msg/Image)
+- `/camera/depth/image_raw` - Depth image (sensor_msgs/msg/Image) 
+- `/camera/depth/points` - 3D point cloud (sensor_msgs/msg/PointCloud2)
+- `/camera/camera_info` - Camera calibration parameters (sensor_msgs/msg/CameraInfo)
+
+### Viewing Camera Feeds
+
+**RGB Image in RViz2:**
+1. Add **Camera** display
+2. Set Image Topic to `/camera/image_raw`
+3. Color image will appear in display panel
+
+**Depth Image in RViz2:**
+1. Add **Image** display  
+2. Set Image Topic to `/camera/depth/image_raw`
+3. **Important**: Turn OFF "Normalize Range"
+4. Set **Min Value**: 0.05, **Max Value**: 8.0
+5. Depth shows as grayscale (closer = darker, farther = lighter)
+
+**Point Cloud in RViz2:**
+1. Add **PointCloud2** display
+2. Set Topic to `/camera/depth/points`
+3. Set **Fixed Frame** to `base_link` or `map`
+4. Set **Size (m)** to `0.02` for better visibility
+5. **Color Transformer**: Use `Z` (height-based colors)
+6. Shows 3D representation of depth data
+
+**In Gazebo:**
+1. Right-click → Plugins → Image Display
+2. Subscribe to `camera/image` for RGB view
+3. Subscribe to `camera/depth_image` for depth view
+
+### Camera Specifications
+- **Resolution:** 640x480 (both RGB and depth)
+- **Update Rate:** 10 Hz
+- **Field of View:** 1.089 radians (~62.4 degrees)
+- **Depth Range:** 0.05m to 8.0m
+- **Position:** Front of chassis, centered between front wheels
+- **Visual Indicator:** Blue rectangular camera box
+
+### Switching Between RGB and Depth Cameras
+
+**To use RGB Camera only:**
+```xml
+<!-- In description/robot.urdf.xacro -->
+<xacro:include filename="camera.xacro" />
+<!-- <xacro:include filename="depth_camera.xacro" /> -->
+```
+
+**To use Depth Camera (current):**
+```xml 
+<!-- In description/robot.urdf.xacro -->
+<!-- <xacro:include filename="camera.xacro" /> -->
+<xacro:include filename="depth_camera.xacro" />
+```
+
+**Visual Differences:**
+- **RGB Camera**: Red rectangular box
+- **Depth Camera**: Blue rectangular box
+
+### Technical Details
+- Uses `rgbd_camera` sensor type in Gazebo Harmonic
+- RGB/depth images bridged via `ros_gz_image_bridge`
+- Point clouds bridged via `ros_gz_bridge` 
+- Frame: `camera_link` for point cloud, `camera_link_optical` for images
+- All bridges configured in `launch/simulation.launch.py`
