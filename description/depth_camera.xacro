@@ -42,18 +42,18 @@
         <sensor name="camera" type="rgbd_camera">
             <pose> 0 0 0 0 0 0 </pose>
             <visualize>true</visualize>
-            <update_rate>10</update_rate>
+            <update_rate>5</update_rate>
             <camera>
                 <horizontal_fov>1.089</horizontal_fov>
                 <image>
                     <format>R8G8B8</format>
-                    <width>640</width>
-                    <height>480</height>
+                    <width>320</width>
+                    <height>240</height>
                 </image>
                 <depth_image>
                     <format>R_FLOAT32</format>
-                    <width>640</width>
-                    <height>480</height>
+                    <width>320</width>
+                    <height>240</height>
                 </depth_image>
                 <clip>
                     <near>0.05</near>
@@ -61,8 +61,18 @@
                 </clip>
             </camera>
             <topic>camera</topic>
-            <gz_frame_id>camera_link</gz_frame_id>
+            <gz_frame_id>camera_link_optical</gz_frame_id>
         </sensor>
+        
+        <plugin name="camera_info_publisher" filename="libgazebo_ros_camera.so">
+            <ros>
+                <namespace>camera</namespace>
+                <remapping>camera_info:=camera_info</remapping>
+            </ros>
+            <camera_name>camera</camera_name>
+            <frame_name>camera_link_optical</frame_name>
+            <hack_baseline>0.0</hack_baseline>
+        </plugin>
     </gazebo>
 
 </robot>
