@@ -12,7 +12,7 @@
             <geometry>
                 <box size="0.02 0.02 0.02"/>
             </geometry>
-            <material name="green"/>
+            <material name="blue"/>
         </visual>
         <collision>
             <geometry>
