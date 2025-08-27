@@ -39,31 +39,8 @@ def generate_launch_description():
                                     default_params_file],
                                condition=UnlessCondition(has_node_params))
 
-    # Convert depth camera point cloud to laser scan
-    pointcloud_to_scan = Node(
-        package='pointcloud_to_laserscan',
-        executable='pointcloud_to_laserscan_node',
-        name='pointcloud_to_laserscan',
-        parameters=[{
-            'target_frame': 'base_link',
-            'transform_tolerance': 0.01,
-            'min_height': -0.5,
-            'max_height': 2.0,
-            'angle_min': -1.5708,  # -90 degrees
-            'angle_max': 1.5708,   # 90 degrees
-            'angle_increment': 0.0087,  # 0.5 degrees
-            'scan_time': 0.3333,
-            'range_min': 0.05,
-            'range_max': 8.0,
-            'use_inf': True,
-            'inf_epsilon': 1.0
-        }],
-        remappings=[
-            ('cloud_in', '/camera/depth/points'),
-            ('scan', '/camera/scan')
-        ],
-        output='screen'
-    )
+    # Note: Removed pointcloud_to_scan node - using lidar-only SLAM for lunabotics
+    # The /scan topic will come directly from the lidar sensor via ros_gz_bridge
 
     start_async_slam_toolbox_node = Node(
         parameters=[
@@ -97,7 +74,6 @@ def generate_launch_description():
     ld.add_action(declare_use_sim_time_argument)
     ld.add_action(declare_params_file_cmd)
     ld.add_action(log_param_change)
-    ld.add_action(pointcloud_to_scan)
     ld.add_action(start_async_slam_toolbox_node)
     ld.add_action(configure_slam_toolbox)
     ld.add_action(activate_slam_toolbox)

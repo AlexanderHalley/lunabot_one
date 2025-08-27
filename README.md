@@ -21,7 +21,7 @@
 ### Tab 1: Start the Simulation
 Launch the robot in Gazebo simulation (includes Nintendo Switch controller support):
 ```bash
-ros2 launch lunabot_one simulation_launch.py
+ros2 launch lunabot_one simulation.launch.py
 ```
 
 ### Tab 2: Start Navigation
@@ -72,12 +72,12 @@ If you want to create new maps instead of using existing ones:
 
 1. **Terminal 1 - Simulation:**
    ```bash
-   ros2 launch lunabot_one simulation_launch.py
+   ros2 launch lunabot_one simulation.launch.py
    ```
 
-2. **Terminal 2 - SLAM:**
+2. **Terminal 2 - SLAM Toolbox:**
    ```bash
-   ros2 launch lunabot_one slam_launch.py
+   ros2 launch lunabot_one online_async_launch.py
    ```
 
 3. **Terminal 3 - Visualization:**
@@ -106,7 +106,7 @@ ros2 run teleop_twist_keyboard teleop_twist_keyboard --ros-args -r cmd_vel:=/dif
 **For Navigation (Recommended):**
 ```bash
 # 4 terminals:
-ros2 launch lunabot_one simulation_launch.py
+ros2 launch lunabot_one simulation.launch.py
 ros2 launch lunabot_one minimal_navigation_launch.py map:=./maps/saved_map.yaml
 rviz2
 ros2 topic pub --once /initialpose [...]
@@ -118,10 +118,36 @@ python3 scripts/navigate_to_goal.py 2.0 1.0
 **For Mapping:**
 ```bash
 # 3 terminals:
-ros2 launch lunabot_one simulation_launch.py
-ros2 launch lunabot_one slam_launch.py
+ros2 launch lunabot_one simulation.launch.py
+ros2 launch lunabot_one online_async_launch.py
 rviz2
 ```
+
+## SLAM System
+
+The robot uses **SLAM Toolbox** with **lidar-only mapping** optimized for lunabotics competition environments:
+
+### Key Features
+- **Lidar-based mapping**: Uses `/scan` topic from the robot's lidar sensor
+- **Outdoor optimized**: Parameters tuned for sandy terrain and sparse outdoor features  
+- **Real-time performance**: Lightweight and efficient for competition robotics
+- **Nav2 integration**: Seamless compatibility with ROS2 navigation stack
+
+### SLAM Configuration
+- **Config file**: `config/params/mapper_params_online_async.yaml`
+- **Launch file**: `launch/online_async_launch.py`
+- **Topics used**: `/scan` (lidar), `/odom` (wheel odometry)
+- **Map resolution**: 0.05m (5cm grid cells)
+- **Loop closure**: Enabled with competition-appropriate thresholds
+
+### Why Lidar-Only SLAM?
+For lunabotics competition:
+- **Reliability**: Works in sandy, dusty environments where cameras struggle
+- **Lighting independence**: No issues with outdoor sun, shadows, or glare  
+- **Computational efficiency**: Lower CPU usage than vision-based SLAM
+- **Proven approach**: Used by successful competition teams
+
+The camera remains available for computer vision tasks (object detection, visual servoing) but is not used for mapping.
 
 ## RGBD Depth Camera
 

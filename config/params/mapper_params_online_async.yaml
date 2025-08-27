@@ -12,7 +12,7 @@ slam_toolbox:
     # ROS Parameters
     odom_frame: odom
     map_frame: map
-    base_frame: base_footprint
+    base_frame: base_link  # Changed from base_footprint to base_link
     scan_topic: /scan
     mode: mapping
 
@@ -35,21 +35,21 @@ slam_toolbox:
     stack_size_to_use: 40000000 #// program needs a larger stack size to serialize large maps
     enable_interactive_mode: true
 
-    # General Parameters
+    # General Parameters - Optimized for outdoor lunabotics
     use_scan_matching: true
     use_scan_barycenter: true
-    minimum_travel_distance: 0.2
-    minimum_travel_heading: 0.2
-    scan_buffer_size: 10
-    scan_buffer_maximum_scan_distance: 10.0
-    link_match_minimum_response_fine: 0.1  
-    link_scan_maximum_distance: 1.5
-    loop_search_maximum_distance: 3.0
+    minimum_travel_distance: 0.3  # Increased for sandy terrain movement
+    minimum_travel_heading: 0.3   # More tolerant of rough terrain
+    scan_buffer_size: 15  # Larger buffer for outdoor environments
+    scan_buffer_maximum_scan_distance: 12.0  # Match max_laser_range
+    link_match_minimum_response_fine: 0.15  # More strict for sparse outdoor features
+    link_scan_maximum_distance: 2.0  # Increased for outdoor scale
+    loop_search_maximum_distance: 5.0  # Larger for competition arena
     do_loop_closing: true 
-    loop_match_minimum_chain_size: 10           
-    loop_match_maximum_variance_coarse: 3.0  
-    loop_match_minimum_response_coarse: 0.35    
-    loop_match_minimum_response_fine: 0.45
+    loop_match_minimum_chain_size: 8  # Slightly less strict for outdoor
+    loop_match_maximum_variance_coarse: 4.0  # More tolerant for outdoor
+    loop_match_minimum_response_coarse: 0.3   # Relaxed for sparse features
+    loop_match_minimum_response_fine: 0.4     # Balanced for competition
 
     # Correlation Parameters - Correlation Parameters
     correlation_search_space_dimension: 0.5
