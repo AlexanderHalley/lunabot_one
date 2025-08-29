@@ -15,6 +15,10 @@ slam_toolbox:
     base_frame: base_link  # Changed from base_footprint to base_link
     scan_topic: /scan
     mode: mapping
+    
+    # IMU Integration
+    use_imu: true
+    imu_topic: /imu/data
 
     # if you'd like to immediately start continuing a map at a given pose
     # or at the dock, but they are mutually exclusive, if pose is given

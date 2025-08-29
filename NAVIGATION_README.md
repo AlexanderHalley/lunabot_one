@@ -18,7 +18,7 @@ This guide provides complete instructions for setting up autonomous navigation w
 cd ~/ros2_ws
 colcon build --packages-select lunabot_one --symlink-install
 source install/setup.bash
-ros2 launch lunabot_one simulation_launch.py
+ros2 launch lunabot_one simulation.launch.py
 ```
 
 ### Tab 2: Launch Navigation
@@ -170,7 +170,7 @@ ros2 topic echo /planner_server/transition_event
 - **Velocity Smoother**: Smooths velocity commands
 
 ### Launch Files
-- `simulation_launch.py`: Gazebo simulation + robot
+- `simulation.launch.py`: Gazebo simulation + robot
 - `minimal_navigation_launch.py`: Navigation stack without bt_navigator
 - `navigation_launch.py`: Full Nav2 stack (has bt_navigator issues)
 
@@ -183,7 +183,8 @@ To create a new map for navigation:
 
 1. Launch simulation and SLAM:
 ```bash
-ros2 launch lunabot_one slam_launch.py
+ros2 launch lunabot_one simulation.launch.py
+ros2 launch lunabot_one online_async_launch.py
 ```
 
 2. Drive around to explore the environment
@@ -204,6 +205,7 @@ ros2 run nav2_map_server map_saver_cli -f ~/ros2_ws/src/lunabot_one/maps/new_map
 ### Sensor Topics
 - `/scan`: Lidar data (LaserScan)
 - `/odom`: Odometry data (Odometry)
+- `/imu/data`: IMU measurements (Imu) - used by SLAM Toolbox
 - `/cmd_vel`: Velocity commands (Twist)
 
 ## Performance Notes
@@ -230,7 +232,7 @@ ros2 run teleop_twist_keyboard teleop_twist_keyboard --ros-args -r cmd_vel:=/dif
 
 ```bash
 # Complete setup (4 commands in 4 tabs)
-ros2 launch lunabot_one simulation_launch.py
+ros2 launch lunabot_one simulation.launch.py
 ros2 launch lunabot_one minimal_navigation_launch.py map:=./maps/saved_map.yaml  
 rviz2
 ros2 topic pub --once /initialpose geometry_msgs/PoseWithCovarianceStamped [...]

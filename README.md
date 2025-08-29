@@ -125,29 +125,67 @@ rviz2
 
 ## SLAM System
 
-The robot uses **SLAM Toolbox** with **lidar-only mapping** optimized for lunabotics competition environments:
+The robot uses **SLAM Toolbox** with **lidar + IMU mapping** optimized for lunabotics competition environments:
 
 ### Key Features
-- **Lidar-based mapping**: Uses `/scan` topic from the robot's lidar sensor
+- **Lidar + IMU mapping**: Uses `/scan` topic from lidar and `/imu/data` for improved orientation
 - **Outdoor optimized**: Parameters tuned for sandy terrain and sparse outdoor features  
 - **Real-time performance**: Lightweight and efficient for competition robotics
 - **Nav2 integration**: Seamless compatibility with ROS2 navigation stack
+- **IMU integration**: Enhances loop closure detection and reduces drift during rotational movements
 
 ### SLAM Configuration
 - **Config file**: `config/params/mapper_params_online_async.yaml`
 - **Launch file**: `launch/online_async_launch.py`
-- **Topics used**: `/scan` (lidar), `/odom` (wheel odometry)
+- **Topics used**: `/scan` (lidar), `/odom` (wheel odometry), `/imu/data` (inertial measurement)
 - **Map resolution**: 0.05m (5cm grid cells)
 - **Loop closure**: Enabled with competition-appropriate thresholds
+- **IMU sensor**: 100Hz update rate with realistic noise modeling
 
-### Why Lidar-Only SLAM?
+### Why Lidar + IMU SLAM?
 For lunabotics competition:
-- **Reliability**: Works in sandy, dusty environments where cameras struggle
+- **Reliability**: Lidar works in sandy, dusty environments where cameras struggle
 - **Lighting independence**: No issues with outdoor sun, shadows, or glare  
+- **IMU advantages**: Improves orientation tracking during wheel slip on sand
+- **Enhanced loop closure**: IMU helps detect when returning to previous locations
 - **Computational efficiency**: Lower CPU usage than vision-based SLAM
 - **Proven approach**: Used by successful competition teams
 
 The camera remains available for computer vision tasks (object detection, visual servoing) but is not used for mapping.
+
+## IMU Sensor
+
+The robot includes a high-frequency IMU sensor that provides inertial measurements for improved SLAM performance.
+
+### IMU Topics
+- `/imu/data` - IMU measurements (sensor_msgs/msg/Imu) including:
+  - **Linear acceleration**: 3-axis acceleration including gravity
+  - **Angular velocity**: 3-axis rotational rates  
+  - **Orientation**: Quaternion orientation estimate
+
+### IMU Features
+- **Update Rate**: 100 Hz for responsive motion tracking
+- **Realistic Noise**: Gaussian noise modeling for accurate simulation
+  - Angular velocity noise: ±0.0002 rad/s standard deviation
+  - Linear acceleration noise: ±0.017 m/s² standard deviation
+- **Frame**: `imu_link` attached to robot chassis
+- **SLAM Integration**: Automatically used by SLAM Toolbox when `use_imu: true`
+
+### Viewing IMU Data
+**In RViz2:**
+1. Add **Imu** display
+2. Set Topic to `/imu/data`
+3. Shows orientation arrow and acceleration vector
+
+**Command Line:**
+```bash
+ros2 topic echo /imu/data
+```
+
+When stationary, you should see:
+- Small random angular velocities (noise around 0)
+- Linear acceleration Z-axis ~9.8 m/s² (gravity)
+- Stable orientation quaternion
 
 ## RGBD Depth Camera
 

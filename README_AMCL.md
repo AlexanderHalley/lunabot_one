@@ -33,6 +33,7 @@ AMCL (Adaptive Monte Carlo Localization) provides more efficient localization on
 - **Better accuracy**: Dedicated localization algorithm
 - **Stable transforms**: Reduces jumping once localized
 - **Nav2 integration**: Works seamlessly with navigation stack
+- **IMU support**: Can optionally use IMU data for improved orientation tracking
 
 ## Configuration
 - AMCL parameters: `config/params/nav2_params.yaml:1-40`
