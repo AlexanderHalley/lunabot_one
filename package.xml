@@ -3,11 +3,52 @@
 <package format="3">
   <name>lunabot_one</name>
   <version>0.0.0</version>
-  <description>TODO: Package description</description>
+  <description>Lunabot One ROS2 package for both simulation and hardware</description>
   <maintainer email="alexhalley@outlook.fr">Alexander Halley</maintainer>
   <license>TODO: License declaration</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
+  <buildtool_depend>ament_cmake_python</buildtool_depend>
+
+  <!-- ROS2 control -->
+  <depend>controller_manager</depend>
+  <depend>diff_drive_controller</depend>
+  <depend>joint_state_broadcaster</depend>
+  <depend>hardware_interface</depend>
+  <depend>ros2_control</depend>
+  <depend>ros2_controllers</depend>
+  
+  <!-- Navigation -->
+  <depend>nav2_common</depend>
+  <depend>nav2_bringup</depend>
+  <depend>slam_toolbox</depend>
+  
+  <!-- Simulation -->
+  <depend>gazebo_ros_pkgs</depend>
+  <depend>gazebo_plugins</depend>
+  
+  <!-- Hardware - ODrive -->
+  <depend>odrive_ros2_control</depend>
+  <depend>socketcan_interface</depend>
+  <depend>can_msgs</depend>
+  
+  <!-- Common -->
+  <depend>robot_state_publisher</depend>
+  <depend>joint_state_publisher</depend>
+  <depend>xacro</depend>
+  <depend>urdf</depend>
+  <depend>rviz2</depend>
+  <depend>sensor_msgs</depend>
+  <depend>geometry_msgs</depend>
+  <depend>nav_msgs</depend>
+  <depend>tf2</depend>
+  <depend>tf2_ros</depend>
+
+  <!-- Teleop -->
+  <depend>teleop_twist_joy</depend>
+  <depend>teleop_twist_keyboard</depend>
+  <depend>joy</depend>
+  <depend>twist_mux</depend>
 
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>
