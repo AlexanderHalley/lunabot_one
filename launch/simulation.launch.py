@@ -143,6 +143,16 @@ def generate_launch_description():
         output='screen'
     )
 
+    ros_gz_imu_bridge = Node(
+        package="ros_gz_bridge",
+        executable="parameter_bridge",
+        arguments=[
+            "/imu@sensor_msgs/msg/Imu@gz.msgs.IMU"
+        ],
+        parameters=[{"use_sim_time": True},
+        ]
+    )
+
     # Removed: four_wheel_drive_controller
 
     # Disabled custom lunabot_joy_teleop - using standard teleop_twist_joy instead
@@ -176,6 +186,7 @@ def generate_launch_description():
         ros_gz_image_bridge,
         ros_gz_pointcloud_bridge,
         ros_gz_camera_info_bridge,
+        ros_gz_imu_bridge, 
         twist_relay,  # Convert Twist to TwistStamped
         # joy_teleop_node,  # Disabled - using standard teleop instead
     ])
