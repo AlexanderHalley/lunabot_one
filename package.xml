@@ -26,11 +26,18 @@
   <!-- Simulation -->
   <depend>gazebo_ros_pkgs</depend>
   <depend>gazebo_plugins</depend>
+  <depend>ros_gz_sim</depend>
+  <depend>ros_gz_bridge</depend>
+  <depend>ros_gz_image</depend>
   
-  <!-- Hardware - ODrive -->
+  <!-- Hardware - ODrive (optional for hardware mode) -->
   <depend>odrive_ros2_control</depend>
-  <depend>socketcan_interface</depend>
+  <depend>socketcan_interface</depend>  
   <depend>can_msgs</depend>
+  
+  <!-- Lidar drivers (hardware mode) -->
+  <!-- <depend>ldlidar_stl_ros2</depend> -->
+  <!-- <depend>rplidar_ros</depend> -->
   
   <!-- Common -->
   <depend>robot_state_publisher</depend>

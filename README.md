@@ -1,9 +1,24 @@
-# Lunabot One - ROS2 Robot Simulation & Navigation
+# Lunabot One - ROS2 Robot System (Simulation & Hardware)
+
+**Complete ROS2 robot system supporting both Gazebo simulation and real hardware deployment with SLAM Toolbox + IMU navigation.**
 
 ## Prerequisites
+
+### For Simulation
 - ROS2 Jazzy
-- Gazebo
+- Gazebo Garden/Harmonic
 - Nav2
+- SLAM Toolbox
+
+### For Hardware 
+- All simulation prerequisites plus:
+- Raspberry Pi 5 (4GB+ RAM)
+- CAN HAT (Waveshare/Seeed Studio)
+- 4x ODrive S1 Motor Controllers
+- Compatible BLDC motors
+- Lidar sensor (LDLidar LD19, RPLidar, etc.)
+
+See [HARDWARE_SETUP.md](HARDWARE_SETUP.md) for detailed hardware setup.
 
 ## Setup
 1. Build the workspace:
@@ -16,28 +31,37 @@
    source install/setup.bash
    ```
 
-## Quick Navigation Setup (4-Tab Method)
+## Quick Start
 
-### Tab 1: Start the Simulation
-Launch the robot in Gazebo simulation (includes Nintendo Switch controller support):
+### 🖥️ Simulation Mode (Default)
+
+**Basic simulation startup:**
 ```bash
-ros2 launch lunabot_one simulation.launch.py
+# Single unified launch command
+ros2 launch lunabot_one unified_bringup.launch.py
+
+# Or with specific world
+ros2 launch lunabot_one unified_bringup.launch.py world:=./worlds/lunabotics_arena.world
 ```
 
-### Tab 2: Start Navigation
-In a new terminal, launch the navigation stack with your map:
+**For Navigation (4-Tab Method):**
+
+**Tab 1: Start Simulation**
+```bash
+ros2 launch lunabot_one unified_bringup.launch.py
+```
+
+**Tab 2: Start Navigation**
 ```bash
 ros2 launch lunabot_one minimal_navigation_launch.py map:=/home/alexanderh/ros2_ws/src/lunabot_one/maps/saved_map.yaml
 ```
 
-### Tab 3: Start RViz for Visualization
-In a new terminal, launch RViz to visualize the robot and map:
+**Tab 3: Start RViz**
 ```bash
 rviz2
 ```
 
-### Tab 4: Set Initial Pose (Required for Navigation)
-After launching navigation, set the robot's initial position:
+**Tab 4: Set Initial Pose (Required for Navigation)**
 ```bash
 ros2 topic pub --once /initialpose geometry_msgs/PoseWithCovarianceStamped '{
   header: {frame_id: "map"},
@@ -50,6 +74,33 @@ ros2 topic pub --once /initialpose geometry_msgs/PoseWithCovarianceStamped '{
   }
 }'
 ```
+
+### 🤖 Hardware Mode
+
+**Basic hardware startup:**
+```bash
+# Launch robot hardware drivers
+ros2 launch lunabot_one unified_bringup.launch.py use_hardware:=true
+
+# Or with specific configuration
+ros2 launch lunabot_one unified_bringup.launch.py use_hardware:=true sim_mode:=false
+```
+
+**For Navigation with hardware:**
+```bash
+# Tab 1: Hardware bringup
+ros2 launch lunabot_one unified_bringup.launch.py use_hardware:=true
+
+# Tab 2: Hardware navigation 
+ros2 launch lunabot_one hardware_navigation.launch.py
+
+# Tab 3: RViz
+rviz2
+
+# Tab 4: Set initial pose (same as simulation)
+```
+
+**⚠️ Hardware Setup Required:** See [HARDWARE_SETUP.md](HARDWARE_SETUP.md) for complete hardware setup instructions including CAN bus configuration and ODrive setup.
 
 ## Autonomous Navigation
 
@@ -65,30 +116,54 @@ python3 scripts/navigate_to_goal.py 2.5 1.0
 
 For detailed navigation instructions, see [NAVIGATION_README.md](NAVIGATION_README.md)
 
-## Alternative Launch Methods
+## Launch Modes & Options
 
-### For SLAM/Mapping (Create New Maps)
-If you want to create new maps instead of using existing ones:
+### 🎛️ Launch Arguments
 
-1. **Terminal 1 - Simulation:**
-   ```bash
-   ros2 launch lunabot_one simulation.launch.py
-   ```
+| Argument | Default | Description |
+|----------|---------|-------------|
+| `use_hardware` | `false` | Switch between simulation and hardware |  
+| `sim_mode` | `true` | Enable simulation sensors (depth camera, IMU) |
+| `use_ros2_control` | `true` | Use ros2_control framework |
+| `world` | `obstacles.world` | World file for simulation |
 
-2. **Terminal 2 - SLAM Toolbox:**
-   ```bash
-   ros2 launch lunabot_one online_async_launch.py
-   ```
+### 📋 Common Launch Commands
 
-3. **Terminal 3 - Visualization:**
-   ```bash
-   rviz2
-   ```
+```bash
+# Basic simulation (default)
+ros2 launch lunabot_one unified_bringup.launch.py
 
-4. **Drive around to map, then save:**
-   ```bash
-   ros2 run nav2_map_server map_saver_cli -f ~/ros2_ws/src/lunabot_one/maps/new_map
-   ```
+# Simulation with different world
+ros2 launch lunabot_one unified_bringup.launch.py world:=./worlds/lunabotics_arena.world
+
+# Hardware mode
+ros2 launch lunabot_one unified_bringup.launch.py use_hardware:=true
+
+# Hardware without simulation sensors
+ros2 launch lunabot_one unified_bringup.launch.py use_hardware:=true sim_mode:=false
+```
+
+### 🗺️ SLAM/Mapping Mode
+Create new maps instead of using existing ones:
+
+**Simulation SLAM:**
+```bash
+ros2 launch lunabot_one unified_bringup.launch.py
+ros2 launch lunabot_one online_async_launch.py
+rviz2
+```
+
+**Hardware SLAM:**
+```bash
+ros2 launch lunabot_one unified_bringup.launch.py use_hardware:=true
+ros2 launch lunabot_one online_async_launch.py
+rviz2  
+```
+
+**Save map:**
+```bash
+ros2 run nav2_map_server map_saver_cli -f ~/ros2_ws/src/lunabot_one/maps/new_map
+```
 
 ## Robot Control Options
 
@@ -101,25 +176,42 @@ For keyboard control instead of autonomous navigation:
 ros2 run teleop_twist_keyboard teleop_twist_keyboard --ros-args -r cmd_vel:=/diff_cont/cmd_vel_unstamped
 ```
 
-## Quick Reference
+## 🚀 Quick Reference
 
-**For Navigation (Recommended):**
+**🖥️ Simulation Navigation:**
 ```bash
 # 4 terminals:
-ros2 launch lunabot_one simulation.launch.py
+ros2 launch lunabot_one unified_bringup.launch.py
 ros2 launch lunabot_one minimal_navigation_launch.py map:=./maps/saved_map.yaml
 rviz2
 ros2 topic pub --once /initialpose [...]
 
-# Then navigate:
+# Navigate:
 python3 scripts/navigate_to_goal.py 2.0 1.0
 ```
 
-**For Mapping:**
+**🤖 Hardware Navigation:**
 ```bash
-# 3 terminals:
-ros2 launch lunabot_one simulation.launch.py
+# 4 terminals:
+ros2 launch lunabot_one unified_bringup.launch.py use_hardware:=true
+ros2 launch lunabot_one hardware_navigation.launch.py
+rviz2  
+ros2 topic pub --once /initialpose [...]
+
+# Navigate:
+python3 scripts/navigate_to_goal.py 2.0 1.0
+```
+
+**🗺️ SLAM Mapping:**
+```bash
+# Simulation:
+ros2 launch lunabot_one unified_bringup.launch.py
 ros2 launch lunabot_one online_async_launch.py
+rviz2
+
+# Hardware:
+ros2 launch lunabot_one unified_bringup.launch.py use_hardware:=true
+ros2 launch lunabot_one online_async_launch.py  
 rviz2
 ```
 

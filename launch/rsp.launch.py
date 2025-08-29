@@ -12,15 +12,21 @@ import xacro
 
 def generate_launch_description():
 
-    # Check if we're told to use sim time
+    # Launch configuration arguments
     use_sim_time = LaunchConfiguration('use_sim_time')
     use_ros2_control = LaunchConfiguration('use_ros2_control')
+    sim_mode = LaunchConfiguration('sim_mode')
+    use_hardware = LaunchConfiguration('use_hardware')
 
-    # Process the URDF file
+    # Process the URDF file with all necessary arguments
     pkg_path = os.path.join(get_package_share_directory('lunabot_one'))
     xacro_file = os.path.join(pkg_path,'description','robot.urdf.xacro')
-    # robot_description_config = xacro.process_file(xacro_file).toxml()
-    robot_description_config = Command(['xacro ', xacro_file, ' use_ros2_control:=', use_ros2_control, ' sim_mode:=', use_sim_time])
+    robot_description_config = Command([
+        'xacro ', xacro_file,
+        ' use_ros2_control:=', use_ros2_control,
+        ' sim_mode:=', sim_mode,
+        ' use_hardware:=', use_hardware
+    ])
     
     # Create a robot_state_publisher node
     params = {'robot_description': robot_description_config, 'use_sim_time': use_sim_time}
@@ -42,6 +48,14 @@ def generate_launch_description():
             'use_ros2_control',
             default_value='true',
             description='Use ros2_control if true'),
+        DeclareLaunchArgument(
+            'sim_mode',
+            default_value='true',
+            description='Enable simulation-specific sensors'),
+        DeclareLaunchArgument(
+            'use_hardware',
+            default_value='false',
+            description='Use hardware mode if true'),
 
         node_robot_state_publisher
     ])
