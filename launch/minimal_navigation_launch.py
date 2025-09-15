@@ -3,7 +3,7 @@
 import os
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, GroupAction
+from launch.actions import DeclareLaunchArgument, GroupAction, TimerAction
 from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
 from nav2_common.launch import RewrittenYaml
@@ -35,6 +35,14 @@ def generate_launch_description():
         default_value=os.path.join(pkg_dir, 'config', 'params', 'nav2_params.yaml'),
         description='Full path to the ROS2 parameters file to use'
     )
+    
+    declare_autoset_pose_cmd = DeclareLaunchArgument(
+        'autoset_pose',
+        default_value='true',
+        description='Automatically set initial pose for arena (true/false)'
+    )
+    
+    autoset_pose = LaunchConfiguration('autoset_pose')
     
     # Create our own temporary YAML files that include substitutions
     param_substitutions = {
@@ -130,6 +138,25 @@ def generate_launch_description():
         )
     ])
     
+    # Initial pose setter (delayed to allow AMCL to start)
+    initial_pose_setter = TimerAction(
+        period=5.0,
+        actions=[
+            Node(
+                package='lunabot_one',
+                executable='initial_pose_setter',
+                name='initial_pose_setter',
+                output='screen',
+                parameters=[{
+                    'use_sim_time': use_sim_time,
+                    'initial_pose_x': 1.0,
+                    'initial_pose_y': 1.0, 
+                    'initial_pose_yaw': 0.0
+                }]
+            )
+        ]
+    )
+    
     # Create the launch description
     ld = LaunchDescription()
     
@@ -137,6 +164,8 @@ def generate_launch_description():
     ld.add_action(declare_use_sim_time_cmd)
     ld.add_action(declare_map_yaml_cmd)
     ld.add_action(declare_params_file_cmd)
+    ld.add_action(declare_autoset_pose_cmd)
     ld.add_action(nav_nodes)
+    ld.add_action(initial_pose_setter)
     
     return ld

@@ -21,32 +21,27 @@ source install/setup.bash
 ros2 launch lunabot_one simulation.launch.py
 ```
 
-### Tab 2: Launch Navigation
-```bash
-cd ~/ros2_ws
-source install/setup.bash
-ros2 launch lunabot_one minimal_navigation_launch.py map:=/home/alexanderh/ros2_ws/src/lunabot_one/maps/saved_map.yaml
-```
-
-### Tab 3: Launch RViz for Visualization
+### Tab 2: Launch RViz for Visualization
 ```bash
 cd ~/ros2_ws
 source install/setup.bash
 rviz2
 ```
 
-### Tab 4: Set Initial Pose
+### Tab 3: Launch Navigation (with auto initial pose)
 ```bash
-ros2 topic pub --once /initialpose geometry_msgs/PoseWithCovarianceStamped '{
-  header: {frame_id: "map"},
-  pose: {
-    pose: {
-      position: {x: 0.0, y: 0.0, z: 0.0},
-      orientation: {x: 0.0, y: 0.0, z: 0.0, w: 1.0}
-    },
-    covariance: [0.25, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.25, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.06853892326654787]
-  }
-}'
+cd ~/ros2_ws
+source install/setup.bash
+ros2 launch lunabot_one minimal_navigation_launch.py map:=/home/alexanderh/ros2_ws/src/lunabot_one/maps/arena_map.yaml autoset_pose:=true
+```
+
+### Tab 4: (Optional) Run Waypoint Navigation
+```bash
+cd ~/ros2_ws/src/lunabot_one
+source ~/ros2_ws/install/setup.bash
+python3 scripts/arena_waypoints.py
+# Or using launch file:
+# ros2 launch lunabot_one waypoint_navigation.launch.py map:=arena_map waypoints:="1.0 1.0 2.0 2.0 1.0 2.0"
 ```
 
 ## Navigation Methods
@@ -233,13 +228,10 @@ ros2 run teleop_twist_keyboard teleop_twist_keyboard --ros-args -r cmd_vel:=/dif
 ```bash
 # Complete setup (4 commands in 4 tabs)
 ros2 launch lunabot_one simulation.launch.py
-ros2 launch lunabot_one minimal_navigation_launch.py map:=./maps/saved_map.yaml  
 rviz2
-ros2 topic pub --once /initialpose geometry_msgs/PoseWithCovarianceStamped [...]
+ros2 launch lunabot_one minimal_navigation_launch.py map:=/home/alexanderh/ros2_ws/src/lunabot_one/maps/arena_map.yaml autoset_pose:=true
+python3 scripts/arena_waypoints.py
 
-# Navigate to goal
-python3 scripts/navigate_to_goal.py 2.0 1.0
-
-# Check robot position  
+# Check robot position
 ros2 topic echo /amcl_pose --once
 ```

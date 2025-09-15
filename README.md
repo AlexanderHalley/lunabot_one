@@ -48,31 +48,25 @@ ros2 launch lunabot_one unified_bringup.launch.py world:=./worlds/lunabotics_are
 
 **Tab 1: Start Simulation**
 ```bash
-ros2 launch lunabot_one unified_bringup.launch.py
+ros2 launch lunabot_one simulation.launch.py
 ```
 
-**Tab 2: Start Navigation**
-```bash
-ros2 launch lunabot_one minimal_navigation_launch.py map:=/home/alexanderh/ros2_ws/src/lunabot_one/maps/saved_map.yaml
-```
-
-**Tab 3: Start RViz**
+**Tab 2: Start RViz**
 ```bash
 rviz2
 ```
 
-**Tab 4: Set Initial Pose (Required for Navigation)**
+**Tab 3: Start Navigation (with auto initial pose)**
 ```bash
-ros2 topic pub --once /initialpose geometry_msgs/PoseWithCovarianceStamped '{
-  header: {frame_id: "map"},
-  pose: {
-    pose: {
-      position: {x: 0.0, y: 0.0, z: 0.0},
-      orientation: {x: 0.0, y: 0.0, z: 0.0, w: 1.0}
-    },
-    covariance: [0.25, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.25, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.06853892326654787]
-  }
-}'
+ros2 launch lunabot_one minimal_navigation_launch.py map:=/home/alexanderh/ros2_ws/src/lunabot_one/maps/arena_map.yaml autoset_pose:=true
+```
+
+**Tab 4: (Optional) Run Waypoint Navigation**
+```bash
+python3 scripts/arena_waypoints.py
+# Or using launch file:
+# ros2 launch lunabot_one waypoint_navigation.launch.py map:=arena_map waypoints:="1.0 1.0 2.0 2.0 1.0 2.0"
+```
 ```
 
 ### 🤖 Hardware Mode
@@ -181,13 +175,10 @@ ros2 run teleop_twist_keyboard teleop_twist_keyboard --ros-args -r cmd_vel:=/dif
 **🖥️ Simulation Navigation:**
 ```bash
 # 4 terminals:
-ros2 launch lunabot_one unified_bringup.launch.py
-ros2 launch lunabot_one minimal_navigation_launch.py map:=./maps/saved_map.yaml
+ros2 launch lunabot_one simulation.launch.py
 rviz2
-ros2 topic pub --once /initialpose [...]
-
-# Navigate:
-python3 scripts/navigate_to_goal.py 2.0 1.0
+ros2 launch lunabot_one minimal_navigation_launch.py map:=/home/alexanderh/ros2_ws/src/lunabot_one/maps/arena_map.yaml autoset_pose:=true
+python3 scripts/arena_waypoints.py
 ```
 
 **🤖 Hardware Navigation:**

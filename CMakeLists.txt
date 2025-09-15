@@ -55,6 +55,12 @@ install(PROGRAMS
   RENAME turning_diagnostics
 )
 
+install(PROGRAMS
+  scripts/initial_pose_setter.py
+  DESTINATION lib/${PROJECT_NAME}
+  RENAME initial_pose_setter
+)
+
 
 
 ament_package()

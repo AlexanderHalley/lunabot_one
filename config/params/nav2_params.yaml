@@ -7,6 +7,11 @@ amcl:
     alpha4: 0.2
     alpha5: 0.2
     base_frame_id: "base_footprint"
+    set_initial_pose: true
+    initial_pose.x: 1.0
+    initial_pose.y: 1.0
+    initial_pose.z: 0.0
+    initial_pose.yaw: 0.0
     beam_skip_distance: 0.5
     beam_skip_error_threshold: 0.9
     beam_skip_threshold: 0.3
