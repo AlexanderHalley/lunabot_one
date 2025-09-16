@@ -11,6 +11,18 @@
   gz_type_name: "gz.msgs.LaserScan"
   direction: GZ_TO_ROS
 
+- ros_topic_name: "scan_left"
+  gz_topic_name: "scan_left"
+  ros_type_name: "sensor_msgs/msg/LaserScan"
+  gz_type_name: "gz.msgs.LaserScan"
+  direction: GZ_TO_ROS
+
+- ros_topic_name: "scan_right"
+  gz_topic_name: "scan_right"
+  ros_type_name: "sensor_msgs/msg/LaserScan"
+  gz_type_name: "gz.msgs.LaserScan"
+  direction: GZ_TO_ROS
+
 - ros_topic_name: "joint_states"
   gz_topic_name: "joint_states"
   ros_type_name: "sensor_msgs/msg/JointState"

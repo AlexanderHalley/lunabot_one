@@ -61,6 +61,11 @@ install(PROGRAMS
   RENAME initial_pose_setter
 )
 
+install(PROGRAMS
+  nodes/lidar_merger.py
+  DESTINATION lib/${PROJECT_NAME}
+)
+
 
 
 ament_package()

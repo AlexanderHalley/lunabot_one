@@ -179,6 +179,22 @@ def generate_launch_description():
         parameters=[{'use_sim_time': True}]
     )
 
+    # Lidar merger - combines front, left, right lidars into /scan_merged
+    lidar_merger = TimerAction(
+        period=3.0,  # Wait for lidars to start
+        actions=[
+            Node(
+                package='lunabot_one',
+                executable='lidar_merger.py',
+                name='lidar_merger',
+                output='screen',
+                parameters=[{'use_sim_time': True}],
+                condition=IfCondition(sim_mode)
+            )
+        ]
+    )
+
+
     return LaunchDescription([
         use_ros2_control_arg,
         sim_mode_arg,
@@ -195,4 +211,5 @@ def generate_launch_description():
         pointcloud_bridge,
         camera_info_bridge,
         twist_relay,
+        lidar_merger,
     ])
