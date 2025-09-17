@@ -23,12 +23,12 @@ See [HARDWARE_SETUP.md](HARDWARE_SETUP.md) for detailed hardware setup.
 ## Setup
 1. Build the workspace:
    ```bash
-   colcon build --packages-select lunabot_one --symlink-install
+   make build
    ```
 
 2. Source the workspace:
    ```bash
-   source install/setup.bash
+   make source
    ```
 
 ## Quick Start
@@ -38,17 +38,17 @@ See [HARDWARE_SETUP.md](HARDWARE_SETUP.md) for detailed hardware setup.
 **Basic simulation startup:**
 ```bash
 # Single unified launch command
-ros2 launch lunabot_one unified_bringup.launch.py
+make sim
 
-# Or with specific world
-ros2 launch lunabot_one unified_bringup.launch.py world:=./worlds/lunabotics_arena.world
+# Or with navigation
+make sim-nav
 ```
 
 **For Navigation (4-Tab Method):**
 
 **Tab 1: Start Simulation**
 ```bash
-ros2 launch lunabot_one simulation.launch.py
+make sim
 ```
 
 **Tab 2: Start RViz**
@@ -58,14 +58,14 @@ rviz2
 
 **Tab 3: Start Navigation (with auto initial pose)**
 ```bash
-ros2 launch lunabot_one minimal_navigation_launch.py map:=/home/alexanderh/ros2_ws/src/lunabot_one/maps/arena_map.yaml autoset_pose:=true
+make minimal-nav
 ```
 
 **Tab 4: (Optional) Run Waypoint Navigation**
 ```bash
-python3 scripts/arena_waypoints.py
+make arena-waypoints
 # Or using launch file:
-# ros2 launch lunabot_one waypoint_navigation.launch.py map:=arena_map waypoints:="1.0 1.0 2.0 2.0 1.0 2.0"
+# make waypoints
 ```
 ```
 
@@ -74,19 +74,19 @@ python3 scripts/arena_waypoints.py
 **Basic hardware startup:**
 ```bash
 # Launch robot hardware drivers
-ros2 launch lunabot_one unified_bringup.launch.py use_hardware:=true
+make hardware
 
-# Or with specific configuration
-ros2 launch lunabot_one unified_bringup.launch.py use_hardware:=true sim_mode:=false
+# Or with navigation
+make hardware-nav
 ```
 
 **For Navigation with hardware:**
 ```bash
 # Tab 1: Hardware bringup
-ros2 launch lunabot_one unified_bringup.launch.py use_hardware:=true
+make hardware
 
-# Tab 2: Hardware navigation 
-ros2 launch lunabot_one hardware_navigation.launch.py
+# Tab 2: Hardware navigation
+make hardware-nav
 
 # Tab 3: RViz
 rviz2
@@ -125,16 +125,21 @@ For detailed navigation instructions, see [NAVIGATION_README.md](NAVIGATION_READ
 
 ```bash
 # Basic simulation (default)
-ros2 launch lunabot_one unified_bringup.launch.py
+make sim
 
-# Simulation with different world
-ros2 launch lunabot_one unified_bringup.launch.py world:=./worlds/lunabotics_arena.world
+# Simulation with navigation
+make sim-nav
 
 # Hardware mode
-ros2 launch lunabot_one unified_bringup.launch.py use_hardware:=true
+make hardware
 
-# Hardware without simulation sensors
-ros2 launch lunabot_one unified_bringup.launch.py use_hardware:=true sim_mode:=false
+# Hardware with navigation
+make hardware-nav
+
+# Component testing
+make lidar-test
+make ball-tracker
+make joystick
 ```
 
 ### 🗺️ SLAM/Mapping Mode
@@ -142,16 +147,16 @@ Create new maps instead of using existing ones:
 
 **Simulation SLAM:**
 ```bash
-ros2 launch lunabot_one unified_bringup.launch.py
+make sim
 ros2 launch lunabot_one online_async_launch.py
 rviz2
 ```
 
 **Hardware SLAM:**
 ```bash
-ros2 launch lunabot_one unified_bringup.launch.py use_hardware:=true
+make hardware
 ros2 launch lunabot_one online_async_launch.py
-rviz2  
+rviz2
 ```
 
 **Save map:**
@@ -167,6 +172,7 @@ The controller support is automatically included in the simulation launch.
 ### Keyboard Teleop (Alternative)
 For keyboard control instead of autonomous navigation:
 ```bash
+# Use after running make sim or make hardware
 ros2 run teleop_twist_keyboard teleop_twist_keyboard --ros-args -r cmd_vel:=/diff_cont/cmd_vel_unstamped
 ```
 
@@ -175,18 +181,18 @@ ros2 run teleop_twist_keyboard teleop_twist_keyboard --ros-args -r cmd_vel:=/dif
 **🖥️ Simulation Navigation:**
 ```bash
 # 4 terminals:
-ros2 launch lunabot_one simulation.launch.py
+make sim
 rviz2
-ros2 launch lunabot_one minimal_navigation_launch.py map:=/home/alexanderh/ros2_ws/src/lunabot_one/maps/arena_map.yaml autoset_pose:=true
-python3 scripts/arena_waypoints.py
+make minimal-nav
+make arena-waypoints
 ```
 
 **🤖 Hardware Navigation:**
 ```bash
 # 4 terminals:
-ros2 launch lunabot_one unified_bringup.launch.py use_hardware:=true
-ros2 launch lunabot_one hardware_navigation.launch.py
-rviz2  
+make hardware
+make hardware-nav
+rviz2
 ros2 topic pub --once /initialpose [...]
 
 # Navigate:
@@ -196,13 +202,13 @@ python3 scripts/navigate_to_goal.py 2.0 1.0
 **🗺️ SLAM Mapping:**
 ```bash
 # Simulation:
-ros2 launch lunabot_one unified_bringup.launch.py
+make sim
 ros2 launch lunabot_one online_async_launch.py
 rviz2
 
 # Hardware:
-ros2 launch lunabot_one unified_bringup.launch.py use_hardware:=true
-ros2 launch lunabot_one online_async_launch.py  
+make hardware
+ros2 launch lunabot_one online_async_launch.py
 rviz2
 ```
 

@@ -6,8 +6,9 @@ AMCL (Adaptive Monte Carlo Localization) provides more efficient localization on
 ## Two-Stage Workflow
 
 ### Stage 1: Mapping (Current Setup)
-1. Launch SLAM for mapping:
+1. Launch simulation and SLAM for mapping:
    ```bash
+   make sim
    ros2 launch lunabot_one online_async_launch.py
    ```
 
@@ -19,8 +20,9 @@ AMCL (Adaptive Monte Carlo Localization) provides more efficient localization on
    ```
 
 ### Stage 2: Localization with AMCL
-1. Launch localization mode:
+1. Launch simulation and localization mode:
    ```bash
+   make sim
    ros2 launch lunabot_one localization_launch.py
    ```
 
@@ -41,6 +43,6 @@ AMCL (Adaptive Monte Carlo Localization) provides more efficient localization on
 - Map location: `maps/saved_map.yaml` (created when you save)
 
 ## Switching Between Modes
-- **Mapping**: Use `online_async_launch.py` 
-- **Localization**: Use `localization_launch.py`
+- **Mapping**: Use `make sim` + `online_async_launch.py`
+- **Localization**: Use `make sim` + `localization_launch.py`
 - Both modes use the same robot/Gazebo setup
