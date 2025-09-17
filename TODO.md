@@ -2,7 +2,15 @@
 
 ## High Priority Issues
 
-### 1. Waypoint Navigation System
+### 1. Chassis Width Reduction
+- **Status**: Required for competition compliance
+- **Issue**: Current chassis width (0.6604m / 26 inches) needs to be reduced by 12cm
+- **Target**: Reduce to 0.5404m (21.28 inches)
+- **Impact**: Will require wheel offset adjustments to maintain proper clearance
+- **Files**: `description/robot_core.xacro`, `config/control/my_controllers.yaml`
+- **Note**: Previous attempt caused turning issues - investigate wheel separation parameter
+
+### 2. Waypoint Navigation System
 - **Status**: Basic waypoint navigation implemented but needs refinement
 - **Issues**:
   - Waypoint execution timing needs optimization
@@ -10,12 +18,15 @@
   - Better integration with navigation stack
 - **Files**: `scripts/arena_waypoints.py`, `launch/waypoint_navigation.launch.py`
 
-### 2. Lidar Sensor Height Adjustment
-- **Status**: Critical for obstacle detection
-- **Issue**: Lidar mounted too high to detect arena boulders and small obstacles
-- **Solution**: Lower lidar sensor in URDF to improve ground-level obstacle detection
-- **Files**: `description/lidar.xacro`
-- **Impact**: Essential for competition environment navigation
+### ✅ 2. Lidar System Improvements (COMPLETED)
+- **Status**: ✅ Completed - 3-lidar fusion system implemented
+- **Achievements**:
+  - Added side lidars for ~270° coverage
+  - Repositioned front lidar to bottom front of chassis
+  - Implemented coordinate-aware fusion with proper position transforms
+  - Created `/scan_merged` topic combining all 3 lidars
+  - Reduced FOV to ±63.8° per lidar
+- **Files**: `description/lidar.xacro`, `nodes/lidar_merger.py`, `config/gz_bridge.yaml`
 
 ### 3. Full Navigation Launch Integration
 - **Status**: Needs investigation

@@ -20,7 +20,7 @@ def generate_launch_description():
     
     map_file_arg = DeclareLaunchArgument(
         'map',
-        default_value=os.path.join(pkg_dir, 'maps', 'usc_arena.yaml'),
+        default_value=os.path.join(pkg_dir, 'maps', 'arena_map.yaml'),
         description='Map file to use for navigation'
     )
 
@@ -36,8 +36,8 @@ def generate_launch_description():
     
     # Execute waypoint pattern
     waypoint_execution = ExecuteProcess(
-        cmd=['python3', 
-             os.path.join(pkg_dir, '..', '..', 'src', 'lunabot_one', 'scripts', 'arena_waypoints.py'),
+        cmd=['python3',
+             os.path.join(pkg_dir, 'scripts', 'arena_waypoints.py'),
              LaunchConfiguration('pattern')],
         output='screen'
     )
