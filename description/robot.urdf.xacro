@@ -16,7 +16,7 @@
                 <param name="can_interface">can0</param>
                 <param name="enable_watchdog">true</param>
                 <param name="watchdog_timeout">1.0</param>
-                <param name="update_rate">100</param>
+                <param name="update_rate">50</param>
             </hardware>
             
             <joint name="left_wheel_joint">

@@ -9,8 +9,11 @@ import math
 import time
 
 class WaypointNavigator(Node):
-    def __init__(self):
+    def __init__(self, waypoint_pause_duration=2.0):
         super().__init__('waypoint_navigator')
+
+        # Configuration
+        self.waypoint_pause_duration = waypoint_pause_duration
         
         self.compute_path_client = ActionClient(self, ComputePathToPose, '/compute_path_to_pose')
         self.follow_path_client = ActionClient(self, FollowPath, '/follow_path')
@@ -148,8 +151,13 @@ class WaypointNavigator(Node):
             if not success:
                 self.get_logger().error(f'Failed to reach waypoint {i+1}: ({x}, {y}, {yaw})')
                 return False
-                
+
             self.get_logger().info(f'Successfully reached waypoint {i+1}')
+
+            # Pause at waypoint (configurable duration)
+            if self.waypoint_pause_duration > 0:
+                self.get_logger().info(f'Pausing for {self.waypoint_pause_duration} seconds at waypoint...')
+                time.sleep(self.waypoint_pause_duration)
             
         self.get_logger().info('All waypoints completed successfully!')
         return True
@@ -199,7 +207,7 @@ def main():
     print(f"Parsed waypoints: {waypoints}")
     
     rclpy.init()
-    navigator = WaypointNavigator()
+    navigator = WaypointNavigator(waypoint_pause_duration=2.0)  # 2 seconds pause at each waypoint
     
     try:
         navigator.navigate_waypoints(waypoints, set_initial_pose=True)

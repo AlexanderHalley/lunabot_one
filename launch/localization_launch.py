@@ -96,6 +96,14 @@ def generate_launch_description():
             parameters=[configured_params],
             remappings=remappings),
 
+        # Node(
+        #     package='robot_localization',
+        #     executable='ekf_node',
+        #     name='ekf_filter_node',
+        #     output='screen',
+        #     parameters=[configured_params],
+        #     remappings=[('odometry/filtered', '/odom/filtered')]),
+
         Node(
             package='nav2_lifecycle_manager',
             executable='lifecycle_manager',

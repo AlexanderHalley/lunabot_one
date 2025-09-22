@@ -35,7 +35,7 @@ diff_drive:
   right_wheels: ["front_right", "rear_right"]
   
   # Robot physical parameters (update with actual measurements)
-  wheel_separation: 0.782  # Distance between left and right wheels (m)
+  wheel_separation: 0.6048  # Distance between wheel centers (m) - for 70cm total width
   wheel_radius: 0.165      # Wheel radius (m)
   
   # Control parameters  

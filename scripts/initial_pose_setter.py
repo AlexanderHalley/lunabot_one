@@ -27,7 +27,7 @@ class InitialPoseSetter(Node):
         )
         
         # Timer to publish initial pose after a delay
-        self.timer = self.create_timer(1.0, self.publish_initial_pose)
+        self.timer = self.create_timer(3.0, self.publish_initial_pose)
         self.published = False
         
         self.get_logger().info(f'Initial pose setter ready: ({self.initial_x}, {self.initial_y}, {self.initial_yaw})')

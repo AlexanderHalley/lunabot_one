@@ -3,20 +3,20 @@
 
     <xacro:include filename="inertial_macros.xacro"/>
 
-    <!-- Updated chassis properties -->
+    <!-- Original chassis properties (restored for proper turning) -->
     <xacro:property name="chassis_length" value="0.9652"/>      <!-- 38 in -->
-    <xacro:property name="chassis_width" value="0.6604"/>       <!-- 26 in -->
+    <xacro:property name="chassis_width" value="0.6604"/>       <!-- 26 in - original width for proper turning -->
     <xacro:property name="chassis_height" value="0.138"/>       <!-- kept original unless specified -->
     <xacro:property name="chassis_mass" value="14.608"/>        <!-- full chassis -->
 
-    <!-- Updated wheel properties -->
+    <!-- Original wheel properties -->
     <xacro:property name="wheel_radius" value="0.1778"/>        <!-- 7 in -->
     <xacro:property name="wheel_thickness" value="0.1016"/>     <!-- 4 in -->
     <xacro:property name="wheel_mass" value="1.977"/>           <!-- wheel + hub + gearbox + motor -->
 
-    <!-- Updated wheel offsets -->
+    <!-- Original wheel offsets (restored for proper turning) -->
     <xacro:property name="wheel_offset_x" value="0.4826"/>      <!-- half of chassis_length -->
-    <xacro:property name="wheel_offset_y" value="0.391"/>       <!-- half of chassis_width -->
+    <xacro:property name="wheel_offset_y" value="0.3810"/>      <!-- original offset for proper wheel separation -->
     <xacro:property name="wheel_offset_z" value="0.0889"/>      <!-- ~3.5 in off ground -->
 
     <!-- Global contact/friction parameters -->

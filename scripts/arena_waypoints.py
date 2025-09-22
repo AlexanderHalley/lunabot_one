@@ -30,18 +30,13 @@ from waypoint_navigator import WaypointNavigator
 # ============================================================================
 
 ARENA_WAYPOINTS = {
-    # Basic arena exploration - safe path avoiding obstacles
+    # Basic arena exploration - optimized 4-waypoint path with safe clearance
     'arena_exploration': [
-        #Assume you start at 1,1 
-        (2.0, 3.8, 0.0),     # Go NORTH - above all obstacles
-        (2.8, 3.8, 1.57),    # Go EAST - above boulder 1 (westmost rock)
-        (4.2, 4.0, 1.57),    # Continue east, above boulder 4  
-        (5.2, 4.0, 1.57),    # Continue east, above boulder 2
-        (6.2, 3.3, -1.57),   # Go above boulder 2, then turn south
-        (6.2, 2.0, -1.57),   # Move south, clear of boulder 3
-        (5.5, 1.5, 3.14),    # Enter construction zone (goal zone)
-        (4.5, 0.8, 3.14),    # Deep in construction zone (bottom right)
-        (1.0, 1.0, 0.0),     # Return to start
+        #Assume you start at 1,1
+        (2.0, 4.2, 1.57),    # Go north - above all obstacles, then face east
+        (4.75, 3.0, -1.57),  # Move to center area - safe from central column and boulders, then face south
+        (5.0, 1.0, 3.14),    # Enter construction zone (goal area), then face west
+        (1.0, 1.0, 0.0),     # Return to start, face north
     ],
     
     # Perimeter patrol - follows arena walls
@@ -149,6 +144,7 @@ def print_arena_layout():
     print("  Boulder 4: (4.5, 4.5) - radius 0.16m")
     print()
 
+
 def run_pattern(pattern_name):
     """Run a specific arena waypoint pattern"""
     if pattern_name not in ARENA_WAYPOINTS:
@@ -173,13 +169,13 @@ def run_pattern(pattern_name):
     print()
     
     rclpy.init()
-    navigator = WaypointNavigator()
-    
+    navigator = WaypointNavigator(waypoint_pause_duration=2.0)  # 2 seconds pause at each waypoint
+
     try:
         # Set initial pose to robot spawn area center
         navigator.set_initial_pose(1.0, 1.0, 0.0)
         navigator.get_logger().info("Set initial pose to robot spawn area (1.0, 1.0, 0.0)")
-        
+
         # Wait a bit for AMCL to initialize
         import time
         time.sleep(3.0)

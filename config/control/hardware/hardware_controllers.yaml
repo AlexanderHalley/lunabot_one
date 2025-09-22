@@ -20,7 +20,7 @@ diff_drive_controller:
     right_wheel_names: ["right_wheel_joint"]
     
     # Physical robot parameters (match odrive_can_ids.yaml)
-    wheel_separation: 0.782
+    wheel_separation: 0.6048
     wheel_radius: 0.165
     
     # Odometry parameters

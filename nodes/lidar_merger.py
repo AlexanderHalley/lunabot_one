@@ -34,8 +34,8 @@ class LidarMerger(Node):
         # Physical positions of lidars relative to base_link (in meters)
         # Based on URDF: front at front edge, sides at midpoint on edges
         self.front_position = np.array([0.9652, 0.0])      # Front edge of chassis
-        self.left_position = np.array([0.4826, 0.3302])    # Left side, halfway along length
-        self.right_position = np.array([0.4826, -0.3302])  # Right side, halfway along length
+        self.left_position = np.array([0.4826, 0.2484])    # Left side, halfway along length
+        self.right_position = np.array([0.4826, -0.2484])  # Right side, halfway along length
 
         # Orientations (in radians)
         self.front_orientation = 0.0        # Facing forward

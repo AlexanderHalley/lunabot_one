@@ -5,7 +5,7 @@ from rclpy.qos import QoSProfile, DurabilityPolicy
 from geometry_msgs.msg import Twist, TransformStamped
 from std_msgs.msg import Float64MultiArray
 from nav_msgs.msg import Odometry
-from sensor_msgs.msg import JointState
+from sensor_msgs.msg import JointState, Imu
 from rclpy.duration import Duration
 from tf2_ros import TransformBroadcaster
 import tf_transformations
@@ -18,7 +18,7 @@ class FourWheelDriveController(Node):
         
         # Robot parameters
         self.wheel_radius = 0.1778  # meters
-        self.wheel_separation_y = 0.782  # side-to-side
+        self.wheel_separation_y = 0.6048  # side-to-side
         self.wheel_separation_x = 0.864  # front-to-back
         
         # Command timeout
@@ -35,6 +35,10 @@ class FourWheelDriveController(Node):
         # Previous wheel positions for odometry calculation
         self.prev_left_pos = None
         self.prev_right_pos = None
+
+        # IMU data for yaw correction
+        self.imu_yaw = None
+        self.use_imu_yaw = True  # Flag to enable/disable IMU correction
         
         # Subscribers
         self.cmd_vel_sub = self.create_subscription(
@@ -55,6 +59,14 @@ class FourWheelDriveController(Node):
             self.joint_state_callback,
             joint_state_qos
         )
+
+        # IMU subscription for yaw correction
+        self.imu_sub = self.create_subscription(
+            Imu,
+            '/imu/data',
+            self.imu_callback,
+            10
+        )
         
         # Publishers
         self.left_front_pub = self.create_publisher(Float64MultiArray, '/left_front_wheel_velocity_controller/commands', 10)
@@ -71,11 +83,23 @@ class FourWheelDriveController(Node):
         # Timer to continuously send commands
         self.timer = self.create_timer(0.05, self.publish_wheel_commands)  # 20 Hz
         
-        self.get_logger().info('✅ 4-Wheel Drive Controller with Odometry started')
+        self.get_logger().info('✅ 4-Wheel Drive Controller with IMU-corrected Odometry started')
 
     def cmd_vel_callback(self, msg):
         self.last_cmd_vel = msg
         self.last_cmd_time = self.get_clock().now()
+
+    def imu_callback(self, msg):
+        """Process IMU data to get yaw orientation"""
+        try:
+            # Extract yaw from quaternion
+            orientation_q = msg.orientation
+            # Convert quaternion to yaw
+            siny_cosp = 2 * (orientation_q.w * orientation_q.z + orientation_q.x * orientation_q.y)
+            cosy_cosp = 1 - 2 * (orientation_q.y * orientation_q.y + orientation_q.z * orientation_q.z)
+            self.imu_yaw = math.atan2(siny_cosp, cosy_cosp)
+        except Exception as e:
+            self.get_logger().warn(f"IMU callback error: {e}")
 
     def joint_state_callback(self, msg):
         """Process joint states to compute odometry"""
@@ -140,10 +164,14 @@ class FourWheelDriveController(Node):
             
             self.x += delta_x
             self.y += delta_y
-            self.theta += delta_theta
-            
-            # Normalize theta
-            self.theta = math.atan2(math.sin(self.theta), math.cos(self.theta))
+
+            # Use IMU yaw if available, otherwise use wheel odometry
+            if self.use_imu_yaw and self.imu_yaw is not None:
+                self.theta = self.imu_yaw
+            else:
+                self.theta += delta_theta
+                # Normalize theta
+                self.theta = math.atan2(math.sin(self.theta), math.cos(self.theta))
             
             # Calculate velocities
             dt = (current_time - self.last_odom_time).nanoseconds / 1e9

@@ -1,7 +1,7 @@
 # Lunabot One Makefile
 # Simplifies common ROS2 launch commands and build operations
 
-.PHONY: help build source clean sim sim-nav hardware hardware-nav hardware-test lidar-test ball-tracker joystick minimal-nav waypoints arena-waypoints
+.PHONY: help build source clean kill sim sim-nav hardware hardware-nav hardware-test lidar-test ball-tracker joystick minimal-nav full-nav waypoints arena-waypoints
 
 # Default target
 help:
@@ -11,6 +11,7 @@ help:
 	@echo "  build         - Build lunabot_one package and source setup"
 	@echo "  clean         - Clean build artifacts"
 	@echo "  source        - Source install/setup.bash"
+	@echo "  kill          - Kill all ROS2, Gazebo, and related processes"
 	@echo ""
 	@echo "Simulation:"
 	@echo "  sim           - Launch Gazebo simulation only"
@@ -28,6 +29,7 @@ help:
 	@echo "  joystick      - Launch joystick control"
 	@echo ""
 	@echo "Navigation:"
+	@echo "  full-nav      - Launch complete nav2 stack (localization + navigation)"
 	@echo "  waypoints     - Launch waypoint navigation"
 	@echo "  arena-waypoints - Launch arena waypoint navigation"
 
@@ -43,6 +45,36 @@ source:
 clean:
 	@echo "Cleaning build artifacts..."
 	rm -rf build/lunabot_one install/lunabot_one log/lunabot_one
+
+kill:
+	@echo "Killing all ROS2, Gazebo, and related processes..."
+	@echo "Stopping ROS2 processes..."
+	-pkill -f ros2 2>/dev/null || true
+	-pkill -f nav2 2>/dev/null || true
+	@echo "Stopping Gazebo processes..."
+	-pkill -f gazebo 2>/dev/null || true
+	-pkill -f gzserver 2>/dev/null || true
+	-pkill -f gzclient 2>/dev/null || true
+	-pkill -f gz 2>/dev/null || true
+	@echo "Stopping RViz processes..."
+	-pkill -f rviz2 2>/dev/null || true
+	@echo "Stopping Python waypoint scripts..."
+	-pkill -f "python3.*waypoint" 2>/dev/null || true
+	-pkill -f "python3.*arena" 2>/dev/null || true
+	@echo "Stopping specific navigation processes..."
+	-pkill -f planner_server 2>/dev/null || true
+	-pkill -f map_server 2>/dev/null || true
+	-pkill -f lifecycle_manager 2>/dev/null || true
+	-pkill -f controller_server 2>/dev/null || true
+	-pkill -f amcl 2>/dev/null || true
+	-pkill -f bt_navigator 2>/dev/null || true
+	@echo "Waiting for processes to terminate..."
+	@sleep 2
+	@echo "Force killing any remaining processes..."
+	-pkill -9 -f ros2 2>/dev/null || true
+	-pkill -9 -f gazebo 2>/dev/null || true
+	-pkill -9 -f gz 2>/dev/null || true
+	@echo "All processes terminated!"
 
 # Simulation
 sim:
@@ -85,6 +117,10 @@ joystick:
 	ros2 launch lunabot_one joystick.launch.py
 
 # Navigation modes
+full-nav:
+	@echo "Launching complete nav2 stack (localization + navigation)..."
+	ros2 launch lunabot_one full_navigation_launch.py map:=/home/alexanderh/ros2_ws/src/lunabot_one/maps/arena_map.yaml autoset_pose:=true
+
 waypoints:
 	@echo "Launching waypoint navigation..."
 	ros2 launch lunabot_one waypoint_navigation.launch.py

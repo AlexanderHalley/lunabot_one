@@ -56,7 +56,7 @@ class TurningDiagnostics(Node):
                     right_pos = wheel_joints['right_wheel_joint']['position']
                     
                     # Simple differential drive yaw calculation
-                    wheel_separation = 0.782
+                    wheel_separation = 0.6048
                     wheel_radius = 0.1778
                     yaw = (right_pos - left_pos) * wheel_radius / wheel_separation
                     

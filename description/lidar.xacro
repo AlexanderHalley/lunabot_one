@@ -32,7 +32,7 @@
         <sensor name="laser" type="gpu_lidar">
             <pose> 0 0 0 0 0 0 </pose>
             <visualize>false</visualize>
-            <update_rate>10</update_rate>
+            <update_rate>5</update_rate>
             <lidar>
                 <scan>
                     <horizontal>
@@ -61,7 +61,7 @@
     <joint name="left_laser_joint" type="fixed">
         <parent link="chassis"/>
         <child link="left_laser_frame"/>
-        <origin xyz="0.4826 0.3302 0" rpy="0 0 1.5708"/>
+        <origin xyz="0.4826 0.2484 0" rpy="0 0 1.5708"/>
     </joint>
 
     <link name="left_laser_frame">
@@ -87,7 +87,7 @@
         <sensor name="left_laser" type="gpu_lidar">
             <pose> 0 0 0 0 0 0 </pose>
             <visualize>false</visualize>
-            <update_rate>10</update_rate>
+            <update_rate>5</update_rate>
             <lidar>
                 <scan>
                     <horizontal>
@@ -116,7 +116,7 @@
     <joint name="right_laser_joint" type="fixed">
         <parent link="chassis"/>
         <child link="right_laser_frame"/>
-        <origin xyz="0.4826 -0.3302 0" rpy="0 0 -1.5708"/>
+        <origin xyz="0.4826 -0.2484 0" rpy="0 0 -1.5708"/>
     </joint>
 
     <link name="right_laser_frame">
@@ -142,7 +142,7 @@
         <sensor name="right_laser" type="gpu_lidar">
             <pose> 0 0 0 0 0 0 </pose>
             <visualize>false</visualize>
-            <update_rate>10</update_rate>
+            <update_rate>5</update_rate>
             <lidar>
                 <scan>
                     <horizontal>

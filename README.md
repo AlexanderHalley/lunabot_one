@@ -1,6 +1,6 @@
 # Lunabot One - ROS2 Robot System (Simulation & Hardware)
 
-**Complete ROS2 robot system supporting both Gazebo simulation and real hardware deployment with SLAM Toolbox + IMU navigation.**
+**Complete ROS2 robot system supporting both Gazebo simulation and real hardware deployment with SLAM Toolbox + IMU-corrected navigation.**
 
 ## Prerequisites
 
@@ -56,9 +56,9 @@ make sim
 rviz2
 ```
 
-**Tab 3: Start Navigation (with auto initial pose)**
+**Tab 3: Start Full Navigation (with auto initial pose)**
 ```bash
-make minimal-nav
+make full-nav
 ```
 
 **Tab 4: (Optional) Run Waypoint Navigation**
@@ -66,7 +66,6 @@ make minimal-nav
 make arena-waypoints
 # Or using launch file:
 # make waypoints
-```
 ```
 
 ### 🤖 Hardware Mode
@@ -98,7 +97,14 @@ rviz2
 
 ## Autonomous Navigation
 
-Once setup is complete, navigate to goals using the Python script:
+### ✨ New Features
+- **🎯 Visual Waypoints**: Green cylindrical markers in Gazebo show waypoint locations
+- **⏸️ Waypoint Pausing**: Robot pauses 2 seconds at each waypoint for observation
+- **🧭 IMU-Corrected Odometry**: Prevents drift when hitting obstacles using IMU yaw correction
+- **📍 Full Navigation Stack**: Complete nav2 integration with automatic initial pose setting
+
+### Goal Navigation
+Navigate to goals using the Python script:
 ```bash
 python3 scripts/navigate_to_goal.py <x> <y> [yaw_angle]
 ```
@@ -106,6 +112,13 @@ python3 scripts/navigate_to_goal.py <x> <y> [yaw_angle]
 Example:
 ```bash
 python3 scripts/navigate_to_goal.py 2.5 1.0
+```
+
+### Arena Waypoint Navigation
+Navigate through predefined arena patterns:
+```bash
+make arena-waypoints pattern=arena_exploration
+# Available patterns: arena_exploration, arena_perimeter, zone_inspection, obstacle_navigation, etc.
 ```
 
 For detailed navigation instructions, see [NAVIGATION_README.md](NAVIGATION_README.md)
@@ -130,11 +143,17 @@ make sim
 # Simulation with navigation
 make sim-nav
 
+# Full navigation stack (recommended)
+make full-nav
+
 # Hardware mode
 make hardware
 
 # Hardware with navigation
 make hardware-nav
+
+# Waypoint navigation
+make arena-waypoints
 
 # Component testing
 make lidar-test
@@ -183,7 +202,7 @@ ros2 run teleop_twist_keyboard teleop_twist_keyboard --ros-args -r cmd_vel:=/dif
 # 4 terminals:
 make sim
 rviz2
-make minimal-nav
+make full-nav
 make arena-waypoints
 ```
 
@@ -242,15 +261,27 @@ For lunabotics competition:
 
 The camera remains available for computer vision tasks (object detection, visual servoing) but is not used for mapping.
 
-## IMU Sensor
+## IMU Sensor & Odometry Correction
 
-The robot includes a high-frequency IMU sensor that provides inertial measurements for improved SLAM performance.
+The robot includes a high-frequency IMU sensor that provides inertial measurements for improved SLAM performance and **drift-resistant odometry**.
+
+### 🧭 IMU-Corrected Odometry System
+**New Feature**: The robot now uses IMU data to correct wheel odometry and prevent localization drift when hitting obstacles.
+
+**How it works**:
+- **Wheel odometry**: Provides X/Y position from encoder data
+- **IMU correction**: Provides absolute yaw orientation from gyroscope
+- **Drift prevention**: Eliminates angular drift when wheels slip on obstacles
+- **Obstacle resistance**: Maintains accurate heading even during collisions
+
+**Before**: Robot lost position when wheels slipped on obstacles
+**After**: Robot maintains accurate position using IMU yaw correction
 
 ### IMU Topics
 - `/imu/data` - IMU measurements (sensor_msgs/msg/Imu) including:
   - **Linear acceleration**: 3-axis acceleration including gravity
-  - **Angular velocity**: 3-axis rotational rates  
-  - **Orientation**: Quaternion orientation estimate
+  - **Angular velocity**: 3-axis rotational rates
+  - **Orientation**: Quaternion orientation estimate (used for yaw correction)
 
 ### IMU Features
 - **Update Rate**: 100 Hz for responsive motion tracking
@@ -258,6 +289,7 @@ The robot includes a high-frequency IMU sensor that provides inertial measuremen
   - Angular velocity noise: ±0.0002 rad/s standard deviation
   - Linear acceleration noise: ±0.017 m/s² standard deviation
 - **Frame**: `imu_link` attached to robot chassis
+- **Odometry Integration**: Direct yaw correction in four_wheel_drive_controller
 - **SLAM Integration**: Automatically used by SLAM Toolbox when `use_imu: true`
 
 ### Viewing IMU Data

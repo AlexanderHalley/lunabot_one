@@ -24,17 +24,7 @@ def generate_launch_description():
         description='Map file to use for navigation'
     )
 
-    # Launch navigation with arena map
-    navigation_launch = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource([
-            os.path.join(pkg_dir, 'launch', 'minimal_navigation_launch.py')
-        ]),
-        launch_arguments={
-            'map': LaunchConfiguration('map')
-        }.items()
-    )
-    
-    # Execute waypoint pattern
+    # Execute waypoint pattern only (assumes navigation is already running)
     waypoint_execution = ExecuteProcess(
         cmd=['python3',
              os.path.join(pkg_dir, 'scripts', 'arena_waypoints.py'),
@@ -45,6 +35,5 @@ def generate_launch_description():
     return LaunchDescription([
         waypoint_pattern_arg,
         map_file_arg,
-        navigation_launch,
         waypoint_execution,
     ])

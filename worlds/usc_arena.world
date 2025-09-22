@@ -1,8 +1,9 @@
 <sdf version="1.6">
   <world name="usc_arena">
-    <physics name="5ms" type="ignored">
-      <max_step_size>0.005</max_step_size>
+    <physics name="10ms" type="ignored">
+      <max_step_size>0.01</max_step_size>
       <real_time_factor>1.0</real_time_factor>
+      <real_time_update_rate>50</real_time_update_rate>
     </physics>
     <plugin
       filename="gz-sim-physics-system"
@@ -510,6 +511,91 @@
           <mass value="60"/>
           <inertia ixx="1.2" ixy="0" ixz="0" iyy="1.2" iyz="0" izz="1.2"/>
         </inertial>
+      </link>
+    </model>
+
+    <!-- Waypoint Visual Markers for arena_exploration pattern -->
+    <!-- Waypoint 1: (2.0, 4.2) -->
+    <model name="waypoint_1">
+      <static>true</static>
+      <pose>2.0 4.2 0.05 0 0 0</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <cylinder>
+              <radius>0.1</radius>
+              <length>0.1</length>
+            </cylinder>
+          </geometry>
+          <material>
+            <ambient>0 1 0 1</ambient>
+            <diffuse>0 1 0 1</diffuse>
+            <emissive>0 0.3 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- Waypoint 2: (4.75, 3.0) -->
+    <model name="waypoint_2">
+      <static>true</static>
+      <pose>4.75 3.0 0.05 0 0 0</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <cylinder>
+              <radius>0.1</radius>
+              <length>0.1</length>
+            </cylinder>
+          </geometry>
+          <material>
+            <ambient>0 1 0 1</ambient>
+            <diffuse>0 1 0 1</diffuse>
+            <emissive>0 0.3 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- Waypoint 3: (5.0, 1.0) -->
+    <model name="waypoint_3">
+      <static>true</static>
+      <pose>5.0 1.0 0.05 0 0 0</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <cylinder>
+              <radius>0.1</radius>
+              <length>0.1</length>
+            </cylinder>
+          </geometry>
+          <material>
+            <ambient>0 1 0 1</ambient>
+            <diffuse>0 1 0 1</diffuse>
+            <emissive>0 0.3 0 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- Waypoint 4: (1.0, 1.0) - Return to start -->
+    <model name="waypoint_4">
+      <static>true</static>
+      <pose>1.0 1.0 0.05 0 0 0</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <cylinder>
+              <radius>0.1</radius>
+              <length>0.1</length>
+            </cylinder>
+          </geometry>
+          <material>
+            <ambient>0 1 0 1</ambient>
+            <diffuse>0 1 0 1</diffuse>
+            <emissive>0 0.3 0 1</emissive>
+          </material>
+        </visual>
       </link>
     </model>
 
