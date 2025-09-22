@@ -19,15 +19,16 @@
   - **Makefile integration**: `make arena-waypoints` command
 - **Files**: `scripts/arena_waypoints.py`, `worlds/usc_arena.world`, `launch/arena_waypoints.launch.py`
 
-### ✅ 3. IMU-Corrected Odometry (NEW - COMPLETED)
-- **Status**: ✅ COMPLETED - Drift-resistant navigation implemented
+### ✅ 3. IMU-Corrected Odometry (PARTIAL - NEEDS RE-ENABLING)
+- **Status**: ⚠️ PARTIALLY COMPLETED - Temporarily disabled for debugging
 - **Problem Solved**: Robot localization drift when hitting obstacles
 - **Solution**: Direct IMU yaw integration in odometry controller
 - **Implementation**:
   - Modified `four_wheel_drive_controller.py` to use IMU yaw instead of wheel-based yaw
   - Prevents angular drift during wheel slip on obstacles
   - Maintains accurate heading during collisions
-- **Result**: Robot no longer gets "out of bounds" errors after obstacle contact
+- **Current State**: IMU correction temporarily disabled while fixing AMCL parameters
+- **TODO**: Re-enable IMU correction after AMCL tuning is complete
 
 ### ✅ 4. Full Navigation Stack Integration (COMPLETED)
 - **Status**: ✅ COMPLETED - Complete nav2 stack working
@@ -62,12 +63,16 @@
 - **Files**: `config/params/nav2_params.yaml`, `launch/full_navigation_launch.py`
 
 ### ✅ 8. Navigation Parameters Tuning (COMPLETED)
-- **Status**: ✅ COMPLETED - Parameters optimized for obstacle navigation
+- **Status**: ✅ COMPLETED - Parameters optimized for obstacle navigation and localization
 - **Improvements**:
   - Increased robot radius (0.35m → 0.45m) for safer obstacle avoidance
   - Increased inflation radius (0.55m → 0.75m) for better clearance
   - Tuned DWB controller for more careful navigation
   - Improved transform tolerances to prevent timing issues
+  - **NEW**: Fixed AMCL localization drift during turns:
+    - Reduced motion model noise (alpha1-5: 0.2 → 0.02-0.1)
+    - Increased particle count (1000 → 2000) for better accuracy
+    - Tighter update thresholds and transform tolerance
 - **Files**: `config/params/nav2_params.yaml`
 
 ## Low Priority Enhancements

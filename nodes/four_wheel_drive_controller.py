@@ -38,7 +38,7 @@ class FourWheelDriveController(Node):
 
         # IMU data for yaw correction
         self.imu_yaw = None
-        self.use_imu_yaw = True  # Flag to enable/disable IMU correction
+        self.use_imu_yaw = False  # Flag to enable/disable IMU correction - TEMPORARILY DISABLED FOR DEBUGGING
         
         # Subscribers
         self.cmd_vel_sub = self.create_subscription(
@@ -167,6 +167,14 @@ class FourWheelDriveController(Node):
 
             # Use IMU yaw if available, otherwise use wheel odometry
             if self.use_imu_yaw and self.imu_yaw is not None:
+                wheel_theta = self.theta + delta_theta
+                wheel_theta = math.atan2(math.sin(wheel_theta), math.cos(wheel_theta))
+
+                # Debug: Check difference between IMU and wheel odometry
+                yaw_diff = abs(self.imu_yaw - wheel_theta)
+                if yaw_diff > 0.1:  # Log if difference > 0.1 rad (5.7 degrees)
+                    self.get_logger().warn(f"Large IMU vs wheel yaw diff: IMU={self.imu_yaw:.3f}, Wheel={wheel_theta:.3f}, diff={yaw_diff:.3f}")
+
                 self.theta = self.imu_yaw
             else:
                 self.theta += delta_theta
