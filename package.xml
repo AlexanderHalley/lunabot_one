@@ -31,8 +31,8 @@
   <depend>ros_gz_bridge</depend>
   <depend>ros_gz_image</depend>
   
-  <!-- Hardware - ODrive (optional for hardware mode) -->
-  <depend>odrive_ros2_control</depend>
+  <!-- Hardware - SparkFlex (optional for hardware mode) -->
+  <depend>sparkflex_ros2_control</depend>
   <depend>socketcan_interface</depend>  
   <depend>can_msgs</depend>
   

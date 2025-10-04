@@ -1,14 +1,14 @@
 # Lunabot One Hardware Setup Guide
 
-This guide covers setting up the physical robot with Raspberry Pi 5, CAN HAT, and 4 ODrive S1 motor controllers.
+This guide covers setting up the physical robot with Raspberry Pi 5, CAN HAT, and 4 SparkFlex motor controllers.
 
 ## Hardware Requirements
 
 ### Core Components
 - **Raspberry Pi 5** (4GB+ RAM recommended)
 - **CAN HAT** (e.g., Waveshare RS485/CAN HAT, Seeed Studio 2-Channel CAN-BUS HAT)
-- **4x ODrive S1 Motor Controllers**
-- **4x BLDC Motors** (compatible with ODrive S1)
+- **4x SparkFlex Motor Controllers**
+- **4x NEO Brushless Motors** (or compatible BLDC motors)
 - **Power supply** (suitable for your motors + Pi)
 - **Lidar sensor** (e.g., LDLidar LD19, Slamtec RPLidar)
 - **MicroSD card** (64GB+ recommended)
@@ -20,10 +20,10 @@ Raspberry Pi 5
 CAN HAT
     ↓ (CAN H/L)
 CAN Bus (daisy chain)
-    ├── ODrive S1 #1 (CAN ID: 0x001) → Front Left Motor
-    ├── ODrive S1 #2 (CAN ID: 0x002) → Front Right Motor  
-    ├── ODrive S1 #3 (CAN ID: 0x003) → Rear Left Motor
-    └── ODrive S1 #4 (CAN ID: 0x004) → Rear Right Motor
+    ├── SparkFlex #1 (CAN ID: 1) → Front Left Motor
+    ├── SparkFlex #2 (CAN ID: 2) → Front Right Motor
+    ├── SparkFlex #3 (CAN ID: 3) → Rear Left Motor
+    └── SparkFlex #4 (CAN ID: 4) → Rear Right Motor
 ```
 
 ## Software Prerequisites
@@ -43,9 +43,9 @@ echo "dtoverlay=spi1-3cs" | sudo tee -a /boot/config.txt
 sudo reboot
 ```
 
-### 2. ODrive ROS2 Package Installation
+### 2. SparkFlex ROS2 Package Installation
 ```bash
-# Install ODrive ROS2 control package (assuming it exists)
+# Install SparkFlex ROS2 control package (assuming it exists)
 # Note: This may need to be built from source depending on availability
 cd ~/ros2_ws/src
 git clone https://github.com/odriverobotics/odrive_ros2_control.git  # Hypothetical repo
@@ -177,7 +177,7 @@ cansend can0 001#0800  # Set axis state to CLOSED_LOOP_CONTROL
 
 ## Safety Considerations
 
-⚠️ **Important Safety Notes:**
+**Important Safety Notes:**
 - Always have an emergency stop mechanism
 - Test at low speeds initially (max_velocity: 0.5 m/s)
 - Ensure adequate power supply for all motors

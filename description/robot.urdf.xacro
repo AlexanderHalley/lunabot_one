@@ -9,42 +9,78 @@
 
     <!-- Control system selection -->
     <xacro:if value="$(arg use_hardware)">
-        <!-- Hardware mode: Use ODrive ros2_control hardware interface -->
+        <!-- Hardware mode: Use SparkFlex ros2_control hardware interface -->
         <ros2_control name="RealRobot" type="system">
             <hardware>
-                <plugin>odrive_ros2_control/ODriveHardwareInterface</plugin>
+                <plugin>sparkflex_ros2_control/SparkFlexHardwareInterface</plugin>
                 <param name="can_interface">can0</param>
-                <param name="enable_watchdog">true</param>
-                <param name="watchdog_timeout">1.0</param>
-                <param name="update_rate">50</param>
+                <param name="update_rate">100</param>
+                <param name="config_file">$(find lunabot_one)/hardware/sparkflex/motor_params.yaml</param>
+                <param name="can_ids_file">$(find lunabot_one)/hardware/can/sparkflex_can_ids.yaml</param>
             </hardware>
-            
+
+            <!-- Rear wheels (left side) -->
             <joint name="left_wheel_joint">
                 <command_interface name="velocity">
-                    <param name="min">-10.0</param>
-                    <param name="max">10.0</param>
+                    <param name="min">-5700.0</param>
+                    <param name="max">5700.0</param>
                 </command_interface>
                 <state_interface name="position"/>
                 <state_interface name="velocity"/>
                 <state_interface name="effort"/>
-                <param name="odrive_can_ids">[1, 3]</param>
+                <param name="sparkflex_can_ids">[3]</param>  <!-- Rear left -->
                 <param name="gear_ratio">1.0</param>
-                <param name="wheel_radius">0.165</param>
+                <param name="wheel_radius">0.1778</param>
                 <param name="direction_multiplier">1.0</param>
+                <param name="motor_type">NEO</param>
             </joint>
-            
+
+            <!-- Rear wheels (right side) -->
             <joint name="right_wheel_joint">
                 <command_interface name="velocity">
-                    <param name="min">-10.0</param>
-                    <param name="max">10.0</param>
+                    <param name="min">-5700.0</param>
+                    <param name="max">5700.0</param>
                 </command_interface>
                 <state_interface name="position"/>
                 <state_interface name="velocity"/>
                 <state_interface name="effort"/>
-                <param name="odrive_can_ids">[2, 4]</param>
+                <param name="sparkflex_can_ids">[4]</param>  <!-- Rear right -->
                 <param name="gear_ratio">1.0</param>
-                <param name="wheel_radius">0.165</param>
+                <param name="wheel_radius">0.1778</param>
                 <param name="direction_multiplier">-1.0</param>
+                <param name="motor_type">NEO</param>
+            </joint>
+
+            <!-- Front wheels (left side) -->
+            <joint name="left_front_wheel_joint">
+                <command_interface name="velocity">
+                    <param name="min">-5700.0</param>
+                    <param name="max">5700.0</param>
+                </command_interface>
+                <state_interface name="position"/>
+                <state_interface name="velocity"/>
+                <state_interface name="effort"/>
+                <param name="sparkflex_can_ids">[1]</param>  <!-- Front left -->
+                <param name="gear_ratio">1.0</param>
+                <param name="wheel_radius">0.1778</param>
+                <param name="direction_multiplier">1.0</param>
+                <param name="motor_type">NEO</param>
+            </joint>
+
+            <!-- Front wheels (right side) -->
+            <joint name="right_front_wheel_joint">
+                <command_interface name="velocity">
+                    <param name="min">-5700.0</param>
+                    <param name="max">5700.0</param>
+                </command_interface>
+                <state_interface name="position"/>
+                <state_interface name="velocity"/>
+                <state_interface name="effort"/>
+                <param name="sparkflex_can_ids">[2]</param>  <!-- Front right -->
+                <param name="gear_ratio">1.0</param>
+                <param name="wheel_radius">0.1778</param>
+                <param name="direction_multiplier">-1.0</param>
+                <param name="motor_type">NEO</param>
             </joint>
         </ros2_control>
     </xacro:if>

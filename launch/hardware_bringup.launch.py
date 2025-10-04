@@ -40,7 +40,7 @@ def generate_launch_description():
     )
     
     # Robot description
-    robot_description_content = open(os.path.join(pkg_lunabot_one, 'urdf', 'robot.urdf.xacro')).read()
+    robot_description_content = open(os.path.join(pkg_lunabot_one, 'urdf', 'lunabot_hardware.urdf.xacro')).read()
     robot_description = {'robot_description': robot_description_content}
     
     # Robot State Publisher
@@ -55,8 +55,8 @@ def generate_launch_description():
         ]
     )
     
-    # ODrive ROS2 Control Hardware Interface
-    # This assumes you have the ODrive ROS2 Control package installed
+    # SparkFlex ROS2 Control Hardware Interface
+    # This assumes you have the SparkFlex ROS2 Control package installed
     control_node = Node(
         package='controller_manager',
         executable='ros2_control_node',

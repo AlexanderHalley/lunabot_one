@@ -1,381 +1,251 @@
-# Lunabot One - ROS2 Robot System (Simulation & Hardware)
+# Lunabot One - Autonomous Navigation for NASA Lunabotics
 
-**Complete ROS2 robot system supporting both Gazebo simulation and real hardware deployment with SLAM Toolbox + IMU-corrected navigation.**
+Autonomous navigation system built for the NASA Lunabotics competition. Handles sandy terrain, outdoor lighting, and obstacle-rich environments using LIDAR-based SLAM with IMU drift correction.
+
+**Key Technical Features:**
+- Multi-LIDAR fusion (3x sensors, 270° coverage)
+- IMU-corrected odometry prevents wheel slip drift
+- SparkFlex motor control via CAN bus
+- Nav2 integration with custom waypoint patterns for testing
+
+## System Architecture
+
+```
+├── Navigation: Nav2 + SLAM Toolbox
+├── Perception: 3x LIDAR fusion + IMU
+├── Control: SparkFlex CAN controllers
+├── Hardware: RPi5 + CAN HAT
+└── Simulation: Gazebo + ROS2 Control
+```
+
+**Sensor Pipeline:**
+- LIDAR data → occupancy grid mapping
+- IMU → orientation correction for wheel slippage
+- Encoder feedback → velocity control loop
 
 ## Prerequisites
 
-### For Simulation
+### For Simulation (Students)
 - ROS2 Jazzy
 - Gazebo Garden/Harmonic
 - Nav2
 - SLAM Toolbox
 
-### For Hardware 
+### For Hardware Competition Robot
 - All simulation prerequisites plus:
-- Raspberry Pi 5 (4GB+ RAM)
-- CAN HAT (Waveshare/Seeed Studio)
-- 4x ODrive S1 Motor Controllers
-- Compatible BLDC motors
-- Lidar sensor (LDLidar LD19, RPLidar, etc.)
+- Raspberry Pi 5 (16GB RAM)
+- CAN HAT (Waveshare rs485 CAN HAT)
+- 4x SparkFlex Motor Controllers
+- NEO Brushless motors
+- 3x Lidar sensors (LDLidar LD19, RPLidar, etc.)
 
 See [HARDWARE_SETUP.md](HARDWARE_SETUP.md) for detailed hardware setup.
 
-## Setup
-1. Build the workspace:
-   ```bash
-   make build
-   ```
-
-2. Source the workspace:
-   ```bash
-   make source
-   ```
-
 ## Quick Start
 
-### 🖥️ Simulation Mode (Default)
-
-**Basic simulation startup:**
+### Build & Setup
 ```bash
-# Single unified launch command
-make sim
-
-# Or with navigation
-make sim-nav
+make build    # Build the workspace
+make source   # Source the workspace
 ```
 
-**For Navigation (4-Tab Method):**
+### Simulation Mode 
 
-**Tab 1: Start Simulation**
+**Start robot simulation:**
 ```bash
-make sim
+make sim      # Single command starts everything
 ```
 
-**Tab 2: Start RViz**
+**Full autonomous navigation (4 terminals):**
 ```bash
+# Terminal 1: Start simulation
+make sim
+
+# Terminal 2: Open RViz visualization
 rviz2
-```
 
-**Tab 3: Start Full Navigation (with auto initial pose)**
-```bash
+# Terminal 3: Start navigation stack
 make full-nav
-```
 
-**Tab 4: (Optional) Run Waypoint Navigation**
-```bash
+# Terminal 4: Run waypoint navigation
 make arena-waypoints
-# Or using launch file:
-# make waypoints
 ```
 
-### 🤖 Hardware Mode
+### Hardware Mode (Still in development)
 
-**Basic hardware startup:**
+**Hardware startup:**
 ```bash
-# Launch robot hardware drivers
-make hardware
-
-# Or with navigation
-make hardware-nav
+make hardware     # Launch robot drivers
+make hardware-nav # Start navigation stack
 ```
 
-**For Navigation with hardware:**
-```bash
-# Tab 1: Hardware bringup
-make hardware
+**Hardware Setup Required:** See [HARDWARE_SETUP.md](HARDWARE_SETUP.md) for CAN bus configuration and SparkFlex setup.
 
-# Tab 2: Hardware navigation
-make hardware-nav
+## Past Technical Problems
 
-# Tab 3: RViz
-rviz2
+**Wheel Slip on terrain**: IMU runs at 100Hz to catch wheel slip events and correct odometry drift
+**Multi-LIDAR Fusion**: Coordinate transformation for 270° sensor coverage taking into account different positions of LIDARs
 
-# Tab 4: Set initial pose (same as simulation)
-```
+## Navigation Features
 
-**⚠️ Hardware Setup Required:** See [HARDWARE_SETUP.md](HARDWARE_SETUP.md) for complete hardware setup instructions including CAN bus configuration and ODrive setup.
-
-## Autonomous Navigation
-
-### ✨ New Features
-- **🎯 Visual Waypoints**: Green cylindrical markers in Gazebo show waypoint locations
-- **⏸️ Waypoint Pausing**: Robot pauses 2 seconds at each waypoint for observation
-- **🧭 IMU-Corrected Odometry**: Prevents drift when hitting obstacles using IMU yaw correction
-- **📍 Full Navigation Stack**: Complete nav2 integration with automatic initial pose setting
-
-### Goal Navigation
-Navigate to goals using the Python script:
-```bash
-python3 scripts/navigate_to_goal.py <x> <y> [yaw_angle]
-```
-
-Example:
-```bash
-python3 scripts/navigate_to_goal.py 2.5 1.0
-```
-
-### Arena Waypoint Navigation
-Navigate through predefined arena patterns:
+### Autonomous Waypoint Navigation
+Navigate through predefined competition patterns:
 ```bash
 make arena-waypoints pattern=arena_exploration
-# Available patterns: arena_exploration, arena_perimeter, zone_inspection, obstacle_navigation, etc.
+# Available: arena_exploration, arena_perimeter, zone_inspection, obstacle_navigation
 ```
+
+### Manual Goal Navigation
+Send the robot to specific coordinates:
+```bash
+python3 scripts/navigate_to_goal.py 2.5 1.0  # x, y coordinates
+python3 scripts/navigate_to_goal.py 2.5 1.0 1.57  # x, y, yaw_angle
+```
+
+### Visual Features (Simulation)
+- **Green waypoint markers**: Shows target locations in Gazebo
+- **2-second pausing**: Robot stops at each waypoint for observation
 
 For detailed navigation instructions, see [NAVIGATION_README.md](NAVIGATION_README.md)
 
-## Launch Modes & Options
+## Sensors
 
-### 🎛️ Launch Arguments
+**LIDAR**: Primary mapping sensor, 270° coverage via 3-sensor fusion
+**IMU**: 100Hz orientation correction, prevents odometry drift on sandy terrain
+**RGBD Camera**: Available for object detection, not used in mapping pipeline yet
 
-| Argument | Default | Description |
-|----------|---------|-------------|
-| `use_hardware` | `false` | Switch between simulation and hardware |  
-| `sim_mode` | `true` | Enable simulation sensors (depth camera, IMU) |
-| `use_ros2_control` | `true` | Use ros2_control framework |
-| `world` | `obstacles.world` | World file for simulation |
+*Key Topics: `/scan`, `/imu/data`, `/camera/image_raw`, `/camera/depth/points`*
 
-### 📋 Common Launch Commands
+### IMU-Corrected Odometry System
+**Problem**: Robot loses position when wheels slip on obstacles
+**Solution**: IMU provides absolute yaw orientation to correct wheel odometry
 
+**How it works:**
+- Wheel encoders → X/Y position
+- IMU gyroscope → absolute heading
+- Fusion → drift-resistant localization
+
+### Viewing Sensor Data
+**IMU data:**
 ```bash
-# Basic simulation (default)
-make sim
-
-# Simulation with navigation
-make sim-nav
-
-# Full navigation stack (recommended)
-make full-nav
-
-# Hardware mode
-make hardware
-
-# Hardware with navigation
-make hardware-nav
-
-# Waypoint navigation
-make arena-waypoints
-
-# Component testing
-make lidar-test
-make ball-tracker
-make joystick
+ros2 topic echo /imu/data  # See orientation and angular velocity
 ```
 
-### 🗺️ SLAM/Mapping Mode
+**Camera feeds in RViz:**
+- Add **Camera** display → `/camera/image_raw`
+- Add **PointCloud2** display → `/camera/depth/points` 
+
+## SLAM System
+
+Uses **SLAM Toolbox** with **LIDAR + IMU mapping** for competition environments:
+
+**Why LIDAR over cameras?**
+- Works in lunar, dusty conditions
+- No lighting issues (outdoor sun/shadows)
+- Lower CPU usage than vision SLAM
+- Used by most other teams 
+
+**Configuration:**
+- Map resolution: 5cm grid cells
+- IMU integration: Improves loop closure detection
+- Outdoor tuning: Optimized for sparse features
+- Real-time performance: Efficient for competition robotics
+
+## Launch Commands Reference
+
+### Basic Commands
+```bash
+make sim           # Simulation only
+make sim-nav       # Simulation + navigation
+make full-nav      # Complete navigation stack
+make hardware      # Hardware drivers
+make hardware-nav  # Hardware + navigation
+```
+
+### Development & Testing
+```bash
+make arena-waypoints  # Waypoint navigation
+make lidar-test      # Test LIDAR sensors
+make ball-tracker    # Object detection demo
+make joystick        # Manual control
+```
+
+### SLAM Mapping
 Create new maps instead of using existing ones:
 
-**Simulation SLAM:**
+**Simulation:**
 ```bash
 make sim
 ros2 launch lunabot_one online_async_launch.py
 rviz2
 ```
 
-**Hardware SLAM:**
+**Hardware:**
 ```bash
 make hardware
 ros2 launch lunabot_one online_async_launch.py
 rviz2
 ```
 
-**Save map:**
+**Save your map:**
 ```bash
 ros2 run nav2_map_server map_saver_cli -f ~/ros2_ws/src/lunabot_one/maps/new_map
 ```
 
 ## Robot Control Options
 
-### Nintendo Switch Controller (Default)
-The controller support is automatically included in the simulation launch.
-
-### Keyboard Teleop (Alternative)
-For keyboard control instead of autonomous navigation:
+**Nintendo Switch Controller**: Automatically included in simulation
+**Keyboard Control**:
 ```bash
-# Use after running make sim or make hardware
 ros2 run teleop_twist_keyboard teleop_twist_keyboard --ros-args -r cmd_vel:=/diff_cont/cmd_vel_unstamped
 ```
 
-## 🚀 Quick Reference
+## Development Status
+- [DONE] Autonomous waypoint navigation working
+- [DONE] SLAM mapping validated in competition arena
+- [DONE] Multi-LIDAR fusion operational
+- [WIP] Tuning path planning for tighter obstacle clearance
+- [WIP] Testing CAN bus reliability under load
 
-**🖥️ Simulation Navigation:**
+## Launch Arguments
+
+| Argument | Default | Description |
+|----------|---------|-------------|
+| `use_hardware` | `false` | Switch between simulation and hardware |
+| `sim_mode` | `true` | Enable simulation sensors |
+| `use_ros2_control` | `true` | Use ros2_control framework |
+| `world` | `obstacles.world` | Gazebo world file |
+
+## Learning ROS2 with This Project
+
+**New to ROS2?** This project demonstrates:
+- **Nodes & Topics**: See sensor data flow with `ros2 topic list`
+- **Launch Files**: Understand multi-node startup
+- **Transforms**: Learn coordinate frames with `ros2 run tf2_tools view_frames`
+- **Visualization**: Use RViz to see robot state and sensor data
+- **Simulation**: Test algorithms safely before hardware deployment
+
+**Useful debugging commands:**
 ```bash
-# 4 terminals:
-make sim
-rviz2
-make full-nav
-make arena-waypoints
+ros2 topic list          # See all data streams
+ros2 topic echo /scan    # View LIDAR data
+ros2 node list          # See running components
+rviz2                   # Visualize everything
 ```
 
-**🤖 Hardware Navigation:**
+## Quick Reference Workflows
+
+**Learning/Development:**
 ```bash
-# 4 terminals:
-make hardware
-make hardware-nav
-rviz2
-ros2 topic pub --once /initialpose [...]
-
-# Navigate:
-python3 scripts/navigate_to_goal.py 2.0 1.0
+make sim && rviz2 && make full-nav
 ```
 
-**🗺️ SLAM Mapping:**
+**Competition Navigation:**
 ```bash
-# Simulation:
-make sim
-ros2 launch lunabot_one online_async_launch.py
-rviz2
-
-# Hardware:
-make hardware
-ros2 launch lunabot_one online_async_launch.py
-rviz2
+make hardware && make hardware-nav && make arena-waypoints
 ```
 
-## SLAM System
-
-The robot uses **SLAM Toolbox** with **lidar + IMU mapping** optimized for lunabotics competition environments:
-
-### Key Features
-- **Lidar + IMU mapping**: Uses `/scan` topic from lidar and `/imu/data` for improved orientation
-- **Outdoor optimized**: Parameters tuned for sandy terrain and sparse outdoor features  
-- **Real-time performance**: Lightweight and efficient for competition robotics
-- **Nav2 integration**: Seamless compatibility with ROS2 navigation stack
-- **IMU integration**: Enhances loop closure detection and reduces drift during rotational movements
-
-### SLAM Configuration
-- **Config file**: `config/params/mapper_params_online_async.yaml`
-- **Launch file**: `launch/online_async_launch.py`
-- **Topics used**: `/scan` (lidar), `/odom` (wheel odometry), `/imu/data` (inertial measurement)
-- **Map resolution**: 0.05m (5cm grid cells)
-- **Loop closure**: Enabled with competition-appropriate thresholds
-- **IMU sensor**: 100Hz update rate with realistic noise modeling
-
-### Why Lidar + IMU SLAM?
-For lunabotics competition:
-- **Reliability**: Lidar works in sandy, dusty environments where cameras struggle
-- **Lighting independence**: No issues with outdoor sun, shadows, or glare  
-- **IMU advantages**: Improves orientation tracking during wheel slip on sand
-- **Enhanced loop closure**: IMU helps detect when returning to previous locations
-- **Computational efficiency**: Lower CPU usage than vision-based SLAM
-- **Proven approach**: Used by successful competition teams
-
-The camera remains available for computer vision tasks (object detection, visual servoing) but is not used for mapping.
-
-## IMU Sensor & Odometry Correction
-
-The robot includes a high-frequency IMU sensor that provides inertial measurements for improved SLAM performance and **drift-resistant odometry**.
-
-### 🧭 IMU-Corrected Odometry System
-**New Feature**: The robot now uses IMU data to correct wheel odometry and prevent localization drift when hitting obstacles.
-
-**How it works**:
-- **Wheel odometry**: Provides X/Y position from encoder data
-- **IMU correction**: Provides absolute yaw orientation from gyroscope
-- **Drift prevention**: Eliminates angular drift when wheels slip on obstacles
-- **Obstacle resistance**: Maintains accurate heading even during collisions
-
-**Before**: Robot lost position when wheels slipped on obstacles
-**After**: Robot maintains accurate position using IMU yaw correction
-
-### IMU Topics
-- `/imu/data` - IMU measurements (sensor_msgs/msg/Imu) including:
-  - **Linear acceleration**: 3-axis acceleration including gravity
-  - **Angular velocity**: 3-axis rotational rates
-  - **Orientation**: Quaternion orientation estimate (used for yaw correction)
-
-### IMU Features
-- **Update Rate**: 100 Hz for responsive motion tracking
-- **Realistic Noise**: Gaussian noise modeling for accurate simulation
-  - Angular velocity noise: ±0.0002 rad/s standard deviation
-  - Linear acceleration noise: ±0.017 m/s² standard deviation
-- **Frame**: `imu_link` attached to robot chassis
-- **Odometry Integration**: Direct yaw correction in four_wheel_drive_controller
-- **SLAM Integration**: Automatically used by SLAM Toolbox when `use_imu: true`
-
-### Viewing IMU Data
-**In RViz2:**
-1. Add **Imu** display
-2. Set Topic to `/imu/data`
-3. Shows orientation arrow and acceleration vector
-
-**Command Line:**
+**Map Creation:**
 ```bash
-ros2 topic echo /imu/data
+make sim && ros2 launch lunabot_one online_async_launch.py && rviz2
 ```
-
-When stationary, you should see:
-- Small random angular velocities (noise around 0)
-- Linear acceleration Z-axis ~9.8 m/s² (gravity)
-- Stable orientation quaternion
-
-## RGBD Depth Camera
-
-The robot includes a working RGBD depth camera that provides both color and depth information for mapping and navigation.
-
-### Camera Topics
-- `/camera/image_raw` - RGB color image feed (sensor_msgs/msg/Image)
-- `/camera/depth/image_raw` - Depth image (sensor_msgs/msg/Image) 
-- `/camera/depth/points` - 3D point cloud (sensor_msgs/msg/PointCloud2)
-- `/camera/camera_info` - Camera calibration parameters (sensor_msgs/msg/CameraInfo)
-
-### Viewing Camera Feeds
-
-**RGB Image in RViz2:**
-1. Add **Camera** display
-2. Set Image Topic to `/camera/image_raw`
-3. Color image will appear in display panel
-
-**Depth Image in RViz2:**
-1. Add **Image** display  
-2. Set Image Topic to `/camera/depth/image_raw`
-3. **Important**: Turn OFF "Normalize Range"
-4. Set **Min Value**: 0.05, **Max Value**: 8.0
-5. Depth shows as grayscale (closer = darker, farther = lighter)
-
-**Point Cloud in RViz2:**
-1. Add **PointCloud2** display
-2. Set Topic to `/camera/depth/points`
-3. Set **Fixed Frame** to `base_link` or `map`
-4. Set **Size (m)** to `0.02` for better visibility
-5. **Color Transformer**: Use `Z` (height-based colors)
-6. Shows 3D representation of depth data
-
-**In Gazebo:**
-1. Right-click → Plugins → Image Display
-2. Subscribe to `camera/image` for RGB view
-3. Subscribe to `camera/depth_image` for depth view
-
-### Camera Specifications
-- **Resolution:** 640x480 (both RGB and depth)
-- **Update Rate:** 10 Hz
-- **Field of View:** 1.089 radians (~62.4 degrees)
-- **Depth Range:** 0.05m to 8.0m
-- **Position:** Front of chassis, centered between front wheels
-- **Visual Indicator:** Blue rectangular camera box
-
-### Switching Between RGB and Depth Cameras
-
-**To use RGB Camera only:**
-```xml
-<!-- In description/robot.urdf.xacro -->
-<xacro:include filename="camera.xacro" />
-<!-- <xacro:include filename="depth_camera.xacro" /> -->
-```
-
-**To use Depth Camera (current):**
-```xml 
-<!-- In description/robot.urdf.xacro -->
-<!-- <xacro:include filename="camera.xacro" /> -->
-<xacro:include filename="depth_camera.xacro" />
-```
-
-**Visual Differences:**
-- **RGB Camera**: Red rectangular box
-- **Depth Camera**: Blue rectangular box
-
-### Technical Details
-- Uses `rgbd_camera` sensor type in Gazebo Harmonic
-- RGB/depth images bridged via `ros_gz_image_bridge`
-- Point clouds bridged via `ros_gz_bridge` 
-- Frame: `camera_link` for point cloud, `camera_link_optical` for images
-- All bridges configured in `launch/simulation.launch.py`

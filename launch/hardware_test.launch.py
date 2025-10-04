@@ -46,7 +46,7 @@ def generate_launch_description():
     )
     
     # Basic system test nodes
-    robot_description_content = open(os.path.join(pkg_lunabot_one, 'urdf', 'robot.urdf.xacro')).read()
+    robot_description_content = open(os.path.join(pkg_lunabot_one, 'urdf', 'lunabot_hardware.urdf.xacro')).read()
     robot_description = {'robot_description': robot_description_content}
     
     robot_state_publisher_node = Node(

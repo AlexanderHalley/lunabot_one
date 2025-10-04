@@ -83,7 +83,7 @@ class FourWheelDriveController(Node):
         # Timer to continuously send commands
         self.timer = self.create_timer(0.05, self.publish_wheel_commands)  # 20 Hz
         
-        self.get_logger().info('✅ 4-Wheel Drive Controller with IMU-corrected Odometry started')
+        self.get_logger().info('4-Wheel Drive Controller with IMU-corrected Odometry started')
 
     def cmd_vel_callback(self, msg):
         self.last_cmd_vel = msg
@@ -106,7 +106,7 @@ class FourWheelDriveController(Node):
         try:
             # Debug: Print joint names first time
             if self.prev_left_pos is None:
-                self.get_logger().info(f"🔍 Joint names: {msg.name}")
+                self.get_logger().info(f"Joint names: {msg.name}")
             
             # Find wheel joint indices
             left_indices = []
@@ -119,12 +119,12 @@ class FourWheelDriveController(Node):
                     right_indices.append(i)
             
             if not left_indices or not right_indices:
-                self.get_logger().warn(f"❌ No wheel joints found! Left: {left_indices}, Right: {right_indices}")
+                self.get_logger().warn(f"No wheel joints found! Left: {left_indices}, Right: {right_indices}")
                 return
                 
             # Debug: Log when we successfully find joints
             if self.prev_left_pos is None:
-                self.get_logger().info(f"✅ Found joints - Left indices: {left_indices}, Right indices: {right_indices}")
+                self.get_logger().info(f"Found joints - Left indices: {left_indices}, Right indices: {right_indices}")
                 
             # Average left and right wheel positions
             left_pos = sum(msg.position[i] for i in left_indices) / len(left_indices)
@@ -200,10 +200,10 @@ class FourWheelDriveController(Node):
             
             # Debug: Log occasionally
             if int(current_time.nanoseconds / 1e9) % 2 == 0:  # Every 2 seconds
-                self.get_logger().info(f"📍 Odom: x={self.x:.3f}, y={self.y:.3f}, θ={self.theta:.3f}")
+                self.get_logger().info(f"Odom: x={self.x:.3f}, y={self.y:.3f}, θ={self.theta:.3f}")
             
         except Exception as e:
-            self.get_logger().error(f"❌ Error processing joint states: {e}")
+            self.get_logger().error(f"Error processing joint states: {e}")
             import traceback
             self.get_logger().error(f"Traceback: {traceback.format_exc()}")
 
@@ -246,7 +246,7 @@ class FourWheelDriveController(Node):
         
         # Debug: Confirm publishing
         if int(current_time.nanoseconds / 1e9) % 5 == 0:  # Every 5 seconds
-            self.get_logger().info(f"📤 Published odom: x={self.x:.3f}, y={self.y:.3f}")
+            self.get_logger().info(f"Published odom: x={self.x:.3f}, y={self.y:.3f}")
         
         # Publish transform
         transform = TransformStamped()

@@ -111,7 +111,7 @@ class WaypointNavigator(Node):
             return math.atan2(siny_cosp, cosy_cosp)
 
         self.get_logger().info("=" * 60)
-        self.get_logger().info(f"🎯 WAYPOINT {waypoint_num} ARRIVAL VERIFICATION")
+        self.get_logger().info(f"WAYPOINT {waypoint_num} ARRIVAL VERIFICATION")
         self.get_logger().info("=" * 60)
 
         # Target position

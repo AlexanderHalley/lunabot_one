@@ -1,31 +1,31 @@
-# ODrive CAN ID Configuration
-# Each ODrive S1 has a unique CAN ID for communication
+# SparkFlex CAN ID Configuration
+# Each SparkFlex motor controller has a unique CAN ID for communication
 # This file maps physical wheel positions to CAN IDs
 
 can_bus:
   interface: "can0"
-  bitrate: 1000000  # 1 Mbps
+  bitrate: 1000000  # 1 Mbps (SparkFlex supports up to 1 Mbps)
 
-odrive_nodes:
+sparkflex_nodes:
   front_left:
-    can_id: 0x001  # CAN ID 1
-    axis_id: 0     # Always 0 for ODrive S1 (single axis)
+    can_id: 1      # CAN ID 1 (SparkFlex uses decimal IDs)
     direction: 1   # 1 = forward, -1 = reverse
-    
+    motor_type: "NEO"  # Motor type for appropriate control
+
   front_right:
-    can_id: 0x002  # CAN ID 2  
-    axis_id: 0
+    can_id: 2      # CAN ID 2
     direction: -1  # Reverse for right side wheels
-    
+    motor_type: "NEO"
+
   rear_left:
-    can_id: 0x003  # CAN ID 3
-    axis_id: 0
+    can_id: 3      # CAN ID 3
     direction: 1
-    
+    motor_type: "NEO"
+
   rear_right:
-    can_id: 0x004  # CAN ID 4
-    axis_id: 0  
+    can_id: 4      # CAN ID 4
     direction: -1  # Reverse for right side wheels
+    motor_type: "NEO"
 
 # Differential drive configuration
 # Left side: front_left + rear_left

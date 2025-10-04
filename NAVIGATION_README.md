@@ -1,237 +1,205 @@
-# Lunabot One - ROS2 Navigation Setup
+# Navigation Guide
 
-**TODO:** Tune odometry, nav2 parameters, and simplify launch files
-
-This guide provides complete instructions for setting up autonomous navigation with the Lunabot One robot using ROS2 Nav2 stack.
+Autonomous navigation workflows for the Lunabot One system.
 
 ## Prerequisites
+- Main system running: `make sim` or `make hardware`
+- RViz visualization: `rviz2`
 
-- ROS2 Jazzy installed
-- Gazebo simulation environment
-- Nav2 navigation stack
-- Workspace built and sourced
+## Coordinate System
 
-## Quick Start - 4-Tab Setup
+**Arena Layout:**
+- **Origin (0,0)**: Bottom-left corner of competition arena
+- **Robot spawn**: (1,1) - robot starts 1 meter from bottom-left corner
+- **X-axis**: Increases toward right side of arena
+- **Y-axis**: Increases toward top of arena
+- **Orientation**: 0 radians faces positive X direction (right)
 
-### Tab 1: Build and Launch Simulation
+**Example coordinates:**
 ```bash
-cd ~/ros2_ws
-colcon build --packages-select lunabot_one --symlink-install
-source install/setup.bash
-ros2 launch lunabot_one simulation.launch.py
-```
-
-### Tab 2: Launch RViz for Visualization
-```bash
-cd ~/ros2_ws
-source install/setup.bash
-rviz2
-```
-
-### Tab 3: Launch Navigation (with auto initial pose)
-```bash
-cd ~/ros2_ws
-source install/setup.bash
-ros2 launch lunabot_one minimal_navigation_launch.py map:=/home/alexanderh/ros2_ws/src/lunabot_one/maps/arena_map.yaml autoset_pose:=true
-```
-
-### Tab 4: (Optional) Run Waypoint Navigation
-```bash
-cd ~/ros2_ws/src/lunabot_one
-source ~/ros2_ws/install/setup.bash
-python3 scripts/arena_waypoints.py
-# Or using launch file:
-# ros2 launch lunabot_one waypoint_navigation.launch.py map:=arena_map waypoints:="1.0 1.0 2.0 2.0 1.0 2.0"
+python3 scripts/navigate_to_goal.py 1.0 1.0     # Starting position
+python3 scripts/navigate_to_goal.py 5.0 3.0     # Center-right of arena
+python3 scripts/navigate_to_goal.py 2.0 6.0     # Upper area
+python3 scripts/navigate_to_goal.py 0.5 0.5     # Near origin corner
 ```
 
 ## Navigation Methods
 
-### Method 1: Python Script (Recommended)
-Use the automated navigation script:
-
+### Autonomous Waypoints (Recommended)
+Navigate through predefined competition patterns:
 ```bash
-cd ~/ros2_ws
-source install/setup.bash
-python3 src/lunabot_one/scripts/navigate_to_goal.py <x> <y> [yaw_angle]
+make arena-waypoints pattern=arena_exploration
+# Available patterns: arena_exploration, arena_perimeter, zone_inspection, obstacle_navigation
 ```
 
-**Examples:**
+### Manual Goal Navigation
+Send the robot to specific coordinates:
 ```bash
-# Navigate to coordinates (2.5, 1.0)
-python3 src/lunabot_one/scripts/navigate_to_goal.py 2.5 1.0
-
-# Navigate to coordinates (3.0, -1.5) with specific orientation (1.57 radians = 90 degrees)
-python3 src/lunabot_one/scripts/navigate_to_goal.py 3.0 -1.5 1.57
+python3 scripts/navigate_to_goal.py 2.5 1.0          # x, y coordinates
+python3 scripts/navigate_to_goal.py 2.5 1.0 1.57     # x, y, yaw_angle (radians)
 ```
 
-### Method 2: Manual Commands
-For advanced users who want to see the individual steps:
-
-**Step 1: Compute Path**
-```bash
-ros2 action send_goal /compute_path_to_pose nav2_msgs/action/ComputePathToPose '{
-  goal: {
-    header: {frame_id: "map"},
-    pose: {
-      position: {x: 2.0, y: 1.0, z: 0.0},
-      orientation: {x: 0.0, y: 0.0, z: 0.0, w: 1.0}
-    }
-  },
-  planner_id: "",
-  use_start: false
-}'
-```
-
-**Step 2: Execute Path**
-```bash
-ros2 action send_goal /follow_path nav2_msgs/action/FollowPath '{
-  path: [COPY_PATH_FROM_STEP_1_RESULT]
-}'
-```
-
-## Using RViz for Goal Selection
-
-1. In RViz, use the "2D Goal Pose" tool to visually select a goal
-2. Check the RViz output for coordinates like:
+### RViz Goal Selection
+1. Use "2D Goal Pose" tool in RViz to visually select target
+2. Check console output for coordinates:
    ```
-   [INFO] [rviz2]: Setting goal pose: Frame:map, Position(3.34933, 1.52105, 0), Orientation(0, 0, 0.528408, 0.848991) = Angle: 1.11345
+   Setting goal pose: Position(3.34, 1.52, 0), Angle: 1.11
    ```
-3. Use these coordinates with the Python script:
+3. Use coordinates with navigation script:
    ```bash
-   python3 src/lunabot_one/scripts/navigate_to_goal.py 3.34933 1.52105 1.11345
+   python3 scripts/navigate_to_goal.py 3.34 1.52 1.11
    ```
 
-## Configuration Files
+## Mapping vs Localization
 
-### Key Configuration Files
-- `config/params/nav2_params.yaml` - Main navigation parameters
-- `config/params/mapper_params_online_async.yaml` - SLAM/mapping parameters  
-- `config/rviz/main.rviz` - RViz configuration
-- `maps/saved_map.yaml` - Map metadata
-- `maps/saved_map.pgm` - Map image data
+### SLAM Mapping (Create New Maps)
+Use when exploring unknown environments:
+```bash
+make sim
+ros2 launch lunabot_one online_async_launch.py
+rviz2
+# Drive around to map environment, then save:
+ros2 run nav2_map_server map_saver_cli -f maps/new_map
+```
 
-### Important Parameters
-- **Lidar range**: 12.0m (realistic range)
-- **Robot radius**: 0.22m
-- **Wheel separation multiplier**: 1.1111 (for odometry accuracy)
-- **Controller frequency**: 20.0 Hz
-- **Map resolution**: 0.05m/pixel
+### AMCL Localization (Use Existing Maps)
+Use for navigation on known maps (more efficient):
+```bash
+make sim
+ros2 launch lunabot_one localization_launch.py map:=maps/arena_map.yaml
+# Set initial pose in RViz using "2D Pose Estimate" tool
+make arena-waypoints
+```
+
+**When to use each:**
+- **SLAM Mapping**: Unknown environments, competition scouting, map creation
+- **AMCL Localization**: Known environments, competition runs, better performance
+
+## Complete Workflows
+
+### Competition Navigation Workflow
+```bash
+# Terminal 1: Start simulation
+make sim
+
+# Terminal 2: Open visualization
+rviz2
+
+# Terminal 3: Start navigation stack
+make full-nav
+
+# Terminal 4: Execute waypoint mission
+make arena-waypoints pattern=arena_exploration
+```
+
+### Manual Navigation Workflow
+```bash
+# After completing steps 1-3 above:
+python3 scripts/navigate_to_goal.py 2.0 1.5
+python3 scripts/navigate_to_goal.py -1.0 2.0 3.14
+```
 
 ## Troubleshooting
 
-### Common Issues
-
-**1. "No path found" error**
-- Goal may be in obstacle/wall area on map
-- Try goals closer to current robot position
-- Check RViz to ensure goal is in free space (white areas)
-
-**2. Robot not moving**
-- Verify initial pose is set correctly
-- Check that /amcl_pose topic is publishing
-- Ensure map->odom transform exists
-
-**3. Transform errors**
-- Make sure all launch files are running
-- Verify initial pose was set after launching navigation
-
-**4. RViz "2D Goal Pose" not working automatically**  
-- This is expected with minimal navigation setup
-- Use the Python script or manual commands instead
-
-### Useful Debug Commands
-
+### Robot Won't Move
+**Check localization:**
 ```bash
-# Check robot's current position
-ros2 topic echo /amcl_pose --once
+ros2 topic echo /amcl_pose --once  # Should show current position
+```
 
-# View available topics
-ros2 topic list
+**Verify transforms:**
+```bash
+ros2 run tf2_tools view_frames      # Check map->odom->base_link chain
+```
 
-# Check transform tree
-ros2 run tf2_tools view_frames
-
-# Monitor navigation status
+**Check navigation status:**
+```bash
 ros2 topic echo /planner_server/transition_event
 ```
+
+### Path Planning Fails
+- **"No path found"**: Goal may be in obstacle area (red/black in RViz)
+- **Robot stuck**: Try goals closer to current position
+- **Transform errors**: Ensure initial pose is set after launching navigation
+
+### Common Issues
+1. **Goal in obstacle**: Check RViz costmap - goals must be in free space (white areas)
+2. **No initial pose**: Set using "2D Pose Estimate" tool in RViz
+3. **Missing transforms**: Restart navigation launch file
+4. **RViz "2D Goal Pose" not working**: Expected - use Python scripts instead
 
 ## System Architecture
 
 ### Navigation Stack Components
-- **AMCL**: Adaptive Monte Carlo Localization for robot positioning
-- **Map Server**: Serves the pre-created map
-- **Planner Server**: Computes paths using NavFn planner
-- **Controller Server**: Executes paths using DWB local planner
-- **Velocity Smoother**: Smooths velocity commands
+- **AMCL**: Robot localization using particle filter
+- **Map Server**: Serves pre-built maps to navigation stack
+- **Planner Server**: Global path planning (NavFn planner)
+- **Controller Server**: Local path execution (DWB controller)
+- **Velocity Smoother**: Smooths velocity commands for hardware
 
-### Launch Files
-- `simulation.launch.py`: Gazebo simulation + robot
-- `minimal_navigation_launch.py`: Navigation stack without bt_navigator
-- `navigation_launch.py`: Full Nav2 stack (has bt_navigator issues)
+### Key Topics
+- `/scan`: LIDAR data for obstacle detection
+- `/odom`: Wheel odometry for motion estimation
+- `/imu/data`: IMU data for orientation correction
+- `/cmd_vel`: Velocity commands to robot
+- `/amcl_pose`: Current robot position estimate
 
-### Custom Scripts
-- `scripts/navigate_to_goal.py`: Automated navigation helper
+## Configuration
 
-## Creating New Maps
+### Navigation Parameters
+- **Robot radius**: 0.44m for collision checking
+- **Max linear velocity**: 0.26 m/s
+- **Max angular velocity**: 1.0 rad/s
+- **Controller frequency**: 20 Hz
+- **Planner frequency**: 1 Hz
 
-To create a new map for navigation:
+### Key Configuration Files
+- `config/params/nav2_params.yaml` - Navigation stack parameters
+- `config/params/mapper_params_online_async.yaml` - SLAM configuration
+- `maps/arena_map.yaml` - Competition arena map metadata
 
-1. Launch simulation and SLAM:
-```bash
-ros2 launch lunabot_one simulation.launch.py
-ros2 launch lunabot_one online_async_launch.py
-```
+### Performance Tuning
+- **Wheel separation multiplier**: 1.1111 (improves odometry accuracy)
+- **LIDAR range**: 12.0m (realistic sensor limit)
+- **Map resolution**: 0.05m/pixel (5cm grid cells)
+- **Particle count**: Tuned for balance of accuracy vs performance
 
-2. Drive around to explore the environment
-
-3. Save the map:
-```bash
-ros2 run nav2_map_server map_saver_cli -f ~/ros2_ws/src/lunabot_one/maps/new_map
-```
-
-## Hardware Configuration
-
-### Robot Specifications  
-- **Differential drive**: 4-wheel robot with front/rear wheel pairs
-- **Lidar sensor**: 360° laser scanner, 12m range
-- **Base dimensions**: 0.44m radius for collision checking
-- **Max velocity**: 0.26 m/s linear, 1.0 rad/s angular
-
-### Sensor Topics
-- `/scan`: Lidar data (LaserScan)
-- `/odom`: Odometry data (Odometry)
-- `/imu/data`: IMU measurements (Imu) - used by SLAM Toolbox
-- `/cmd_vel`: Velocity commands (Twist)
-
-## Performance Notes
-
-- Navigation works reliably for goals within 3-4 meters
-- Complex paths through narrow passages may require parameter tuning
-- Odometry accuracy improved with wheel_separation_multiplier = 1.1111
-- System tested with Gazebo simulation in obstacle-rich environments
-
-## Robot Control Options (Alternative to Navigation)
+## Robot Control Alternatives
 
 ### Nintendo Switch Controller
-The controller support is automatically included in the simulation launch.
+Automatically available in simulation:
+```bash
+make sim  # Controller support included
+```
 
 ### Keyboard Teleop
-For manual keyboard control instead of autonomous navigation:
+Manual keyboard control:
 ```bash
 ros2 run teleop_twist_keyboard teleop_twist_keyboard --ros-args -r cmd_vel:=/diff_cont/cmd_vel_unstamped
 ```
 
----
+## Performance Notes
 
-## Quick Reference Commands
+- Navigation tested reliable for goals within 5-6 meters
+- Complex paths through narrow passages may require parameter tuning
+- System validated in obstacle-rich competition-style environments
+- Multi-LIDAR fusion provides robust obstacle detection in 270° arc
+
+## Debug Commands
 
 ```bash
-# Complete setup (4 commands in 4 tabs)
-ros2 launch lunabot_one simulation.launch.py
-rviz2
-ros2 launch lunabot_one minimal_navigation_launch.py map:=/home/alexanderh/ros2_ws/src/lunabot_one/maps/arena_map.yaml autoset_pose:=true
-python3 scripts/arena_waypoints.py
-
-# Check robot position
+# Monitor robot position
 ros2 topic echo /amcl_pose --once
+
+# View all active topics
+ros2 topic list
+
+# Check navigation node status
+ros2 node list | grep nav
+
+# Monitor velocity commands
+ros2 topic echo /cmd_vel
+
+# View costmap for path planning
+ros2 topic echo /global_costmap/costmap
 ```

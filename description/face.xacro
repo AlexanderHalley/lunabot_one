@@ -1,6 +1,9 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro" >
 
+    <!-- Include robot core for chassis dimensions -->
+    <xacro:include filename="robot_core.xacro"/>
+
     <joint name="face_joint" type="fixed">
         <parent link="chassis"/>
         <child link="face_link"/>

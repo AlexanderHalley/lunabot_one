@@ -1,0 +1,76 @@
+# SparkFlex Motor Controller Parameters
+# Configure each motor's operational parameters
+
+# Default motor parameters for all SparkFlex controllers
+# These should be tuned based on your specific motors (NEO motors assumed)
+default_motor_config:
+  # Current limits (Amps)
+  current_limit: 40.0          # Motor current limit (SparkFlex supports up to 80A)
+  current_limit_tolerance: 1.25 # Tolerance multiplier
+
+  # Velocity limits (RPM)
+  velocity_limit: 5700.0       # Maximum motor velocity (typical NEO motor limit)
+
+  # Control parameters
+  torque_constant: 0.018       # NEO motor torque constant (Nm/A)
+  free_speed_rpm: 5676         # NEO motor free speed
+  stall_torque_nm: 2.6         # NEO motor stall torque (Nm)
+
+  # PID parameters for velocity control
+  kP: 0.0001                   # Proportional gain
+  kI: 0.000001                 # Integral gain
+  kD: 0.0                      # Derivative gain
+  kFF: 0.000176                # Feed-forward gain
+
+  # Safety parameters
+  enable_soft_limits: true     # Enable software position limits
+  forward_soft_limit: 1000.0   # Forward position limit (rotations)
+  reverse_soft_limit: -1000.0  # Reverse position limit (rotations)
+  enable_limit_switches: false # No limit switches for drive wheels
+
+# Individual motor configurations (inherits from default)
+motors:
+  front_left:
+    # Override default parameters if needed for specific motor
+    current_limit: 40.0
+    velocity_limit: 5700.0
+
+  front_right:
+    current_limit: 40.0
+    velocity_limit: 5700.0
+
+  rear_left:
+    current_limit: 40.0
+    velocity_limit: 5700.0
+
+  rear_right:
+    current_limit: 40.0
+    velocity_limit: 5700.0
+
+# Control loop parameters for SparkFlex
+control_parameters:
+  # Velocity control gains (primary mode for diff drive)
+  kP: 0.0001
+  kI: 0.000001
+  kD: 0.0
+  kFF: 0.000176
+
+  # Output limits
+  max_output: 1.0
+  min_output: -1.0
+
+  # Ramp rate (units per second)
+  open_loop_ramp_rate: 0.25
+  closed_loop_ramp_rate: 0.0
+
+# Encoder parameters (for NEO built-in encoder)
+encoder:
+  counts_per_rev: 42           # NEO motor encoder resolution
+  position_conversion_factor: 1.0  # Conversion factor for position
+  velocity_conversion_factor: 1.0  # Conversion factor for velocity
+
+# Startup sequence parameters
+startup:
+  auto_enable_on_startup: true # Automatically enable motors after power-on
+  burn_flash: false            # Whether to burn settings to flash memory
+  max_startup_time: 30.0       # Maximum time to wait for all motors ready (seconds)
