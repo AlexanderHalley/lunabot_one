@@ -3,7 +3,8 @@
 import os
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument
+from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
+from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
 
@@ -20,6 +21,15 @@ def generate_launch_description():
         description='Use simulation (Gazebo) clock if true'
     )
 
+    # Include merged sensors (combines /scan_merged + camera -> /scan_final)
+    # Note: lidar_merger is launched by simulation.launch.py
+    merged_sensors_launch = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource([
+            os.path.join(pkg_dir, 'launch', 'merged_sensors.launch.py')
+        ]),
+        launch_arguments={'use_sim_time': use_sim_time}.items()
+    )
+
     # SLAM Toolbox node with merged scan and 8m range limit
     slam_toolbox_node = Node(
         package='slam_toolbox',
@@ -32,7 +42,7 @@ def generate_launch_description():
                 'odom_frame': 'odom',
                 'map_frame': 'map',
                 'base_frame': 'base_footprint',
-                'scan_topic': '/scan_merged',
+                'scan_topic': '/scan_final',
                 'mode': 'mapping',
 
                 # Range limiting to 8m
@@ -79,7 +89,7 @@ def generate_launch_description():
             }
         ],
         remappings=[
-            ('/scan', '/scan_merged')
+            ('/scan', '/scan_final')
         ]
     )
 
@@ -98,6 +108,7 @@ def generate_launch_description():
 
     return LaunchDescription([
         declare_use_sim_time_cmd,
+        merged_sensors_launch,
         slam_toolbox_node,
         lifecycle_manager
     ])

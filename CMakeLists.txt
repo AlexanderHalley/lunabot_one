@@ -63,6 +63,7 @@ install(PROGRAMS
 
 install(PROGRAMS
   nodes/lidar_merger.py
+  nodes/merged_sensors.py
   DESTINATION lib/${PROJECT_NAME}
 )
 
