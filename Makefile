@@ -30,6 +30,10 @@ help:
 	@echo ""
 	@echo "Navigation:"
 	@echo "  full-nav      - Launch complete nav2 stack (localization + navigation)"
+	@echo "  load_map      - Load arena map for visualization"
+	@echo "  load_boulder_map - Load arena boulder map for visualization"
+	@echo "  slam          - Launch SLAM mapping"
+	@echo "  save-map      - Save current SLAM map"
 	@echo "  waypoints     - Launch waypoint navigation"
 	@echo "  arena-waypoints - Launch arena waypoint navigation"
 
@@ -84,7 +88,7 @@ sim:
 sim-nav:
 	@echo "Launching simulation with minimal navigation..."
 	ros2 launch lunabot_one simulation.launch.py & \
-	sleep 5 && ros2 launch lunabot_one minimal_navigation_launch.py map:=/home/alexanderh/ros2_ws/src/lunabot_one/maps/arena_map.yaml
+	sleep 5 && ros2 launch lunabot_one minimal_navigation_launch.py
 
 # Hardware
 hardware:
@@ -103,6 +107,26 @@ minimal-nav:
 	@echo "Launching minimal navigation (localization only)..."
 	ros2 launch lunabot_one minimal_navigation_launch.py use_slam:=false
 
+load_map:
+	@echo "Loading arena map..."
+	ros2 launch lunabot_one localization_launch.py
+
+load_boulder_map:
+	@echo "Loading arena boulder map..."
+	ros2 launch lunabot_one localization_launch.py map:=/home/alexanderh/ros2_ws/src/lunabot_one/maps/arena_boulder_map.yaml
+
+# SLAM Mapping
+slam:
+	@echo "Launching SLAM mapping..."
+	ros2 launch lunabot_one slam_launch.py
+
+save-map:
+	@echo "Saving map..."
+	@read -p "Enter map name (default: new_map): " mapname; \
+	mapname=$${mapname:-new_map}; \
+	ros2 run nav2_map_server map_saver_cli -f ~/ros2_ws/src/lunabot_one/maps/$$mapname --ros-args -p use_sim_time:=true && \
+	echo "Map saved as $$mapname.yaml and $$mapname.pgm"
+
 # Component testing
 lidar-test:
 	@echo "Testing lidar merger..."
@@ -119,7 +143,7 @@ joystick:
 # Navigation modes
 full-nav:
 	@echo "Launching complete nav2 stack (localization + navigation)..."
-	ros2 launch lunabot_one full_navigation_launch.py map:=/home/alexanderh/ros2_ws/src/lunabot_one/maps/arena_map.yaml autoset_pose:=true
+	ros2 launch lunabot_one full_navigation_launch.py map:=/home/alexanderh/ros2_ws/src/lunabot_one/maps/arena_boulder_map.yaml autoset_pose:=true
 
 waypoints:
 	@echo "Launching waypoint navigation..."

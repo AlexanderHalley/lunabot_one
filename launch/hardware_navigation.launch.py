@@ -23,7 +23,7 @@ def generate_launch_description():
     use_respawn = LaunchConfiguration('use_respawn')
     
     # Map file path
-    default_map_path = os.path.join(pkg_lunabot_one, 'maps', 'saved_map.yaml')
+    default_map_path = os.path.join(pkg_lunabot_one, 'maps', 'arena_map.yaml')
     
     # Navigation params file  
     default_params_file = os.path.join(pkg_lunabot_one, 'config', 'params', 'hardware_nav2_params.yaml')

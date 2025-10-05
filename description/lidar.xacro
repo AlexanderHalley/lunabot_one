@@ -37,8 +37,8 @@
                 <scan>
                     <horizontal>
                         <samples>90</samples>
-                        <min_angle>-1.1127</min_angle>
-                        <max_angle>1.1127</max_angle>
+                        <min_angle>-0.8727</min_angle>
+                        <max_angle>0.8727</max_angle>
                     </horizontal>
                 </scan>
                 <range>
@@ -92,8 +92,8 @@
                 <scan>
                     <horizontal>
                         <samples>90</samples>
-                        <min_angle>-1.1127</min_angle>
-                        <max_angle>1.1127</max_angle>
+                        <min_angle>-0.8727</min_angle>
+                        <max_angle>0.8727</max_angle>
                     </horizontal>
                 </scan>
                 <range>
@@ -147,8 +147,8 @@
                 <scan>
                     <horizontal>
                         <samples>90</samples>
-                        <min_angle>-1.1127</min_angle>
-                        <max_angle>1.1127</max_angle>
+                        <min_angle>-0.8727</min_angle>
+                        <max_angle>0.8727</max_angle>
                     </horizontal>
                 </scan>
                 <range>

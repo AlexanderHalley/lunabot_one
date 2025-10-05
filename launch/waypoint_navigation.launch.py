@@ -15,7 +15,7 @@ def generate_launch_description():
     # Launch arguments
     map_file_arg = DeclareLaunchArgument(
         'map',
-        default_value=os.path.join(pkg_dir, 'maps', 'saved_map.yaml'),
+        default_value=os.path.join(pkg_dir, 'maps', 'arena_map.yaml'),
         description='Path to the map file'
     )
     
