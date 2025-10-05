@@ -66,6 +66,11 @@ install(PROGRAMS
   DESTINATION lib/${PROJECT_NAME}
 )
 
+install(PROGRAMS
+  nodes/zone_detector.py
+  DESTINATION lib/${PROJECT_NAME}
+)
+
 
 
 ament_package()

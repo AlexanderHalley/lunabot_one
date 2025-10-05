@@ -27,6 +27,7 @@ help:
 	@echo "  lidar-test    - Test lidar merger"
 	@echo "  ball-tracker  - Launch ball tracking"
 	@echo "  joystick      - Launch joystick control"
+	@echo "  zone-detector - Launch zone detection with RViz markers"
 	@echo ""
 	@echo "Navigation:"
 	@echo "  full-nav      - Launch complete nav2 stack (localization + navigation)"
@@ -152,3 +153,7 @@ waypoints:
 arena-waypoints:
 	@echo "Launching arena waypoint navigation..."
 	ros2 launch lunabot_one arena_waypoints.launch.py
+
+zone-detector:
+	@echo "Launching zone detector..."
+	ros2 launch lunabot_one zone_detector.launch.py
