@@ -31,7 +31,7 @@ def generate_launch_description():
                 'use_sim_time': use_sim_time,
                 'odom_frame': 'odom',
                 'map_frame': 'map',
-                'base_frame': 'base_footprint',
+                'base_frame': 'base_link',  # Changed from base_footprint - must match scan frame_id
                 'scan_topic': '/scan_merged',
                 'mode': 'mapping',
 
@@ -92,6 +92,9 @@ def generate_launch_description():
         parameters=[
             {'use_sim_time': use_sim_time},
             {'autostart': True},
+            {'bond_timeout': 10.0},  # Increased from default 4.0s to allow SLAM initialization
+            {'attempt_respawn_reconnection': True},  # Try to reconnect if bond fails
+            {'bond_respawn_max_duration': 10.0},
             {'node_names': ['slam_toolbox']}
         ]
     )
