@@ -87,3 +87,6 @@ coverage.xml
 .mypy_cache/
 .dmypy.json
 dmypy.json
+
+# Claude AI assistant notes
+.claude_notes.md
