@@ -1,12 +1,12 @@
 #!/bin/bash
 
 # CAN interface setup script for Raspberry Pi 5 with CAN HAT
-# This script sets up the CAN interface for ODrive communication
+# This script sets up the CAN interface for SparkFlex communication
 
 set -e
 
 CAN_INTERFACE="can0"
-CAN_BITRATE="1000000"  # 1 Mbps - ODrive S1 default
+CAN_BITRATE="1000000"  # 1 Mbps - SparkFlex default
 
 echo "Setting up CAN interface: $CAN_INTERFACE"
 

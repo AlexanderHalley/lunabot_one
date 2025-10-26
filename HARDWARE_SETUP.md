@@ -43,62 +43,52 @@ echo "dtoverlay=spi1-3cs" | sudo tee -a /boot/config.txt
 sudo reboot
 ```
 
-### 2. SparkFlex ROS2 Package Installation
+### 2. SparkCAN Library Installation
 ```bash
-# Install SparkFlex ROS2 control package (assuming it exists)
-# Note: This may need to be built from source depending on availability
-cd ~/ros2_ws/src
-git clone https://github.com/odriverobotics/odrive_ros2_control.git  # Hypothetical repo
+# Install sparkcan library (Linux CAN interface for SparkFlex)
+sudo add-apt-repository ppa:graysonarendt/sparkcan
+sudo apt update
+sudo apt install sparkcan
+
+# Build your ROS2 workspace
 cd ~/ros2_ws
-colcon build --packages-select odrive_ros2_control
+colcon build --packages-select lunabot_one
 source install/setup.bash
 ```
 
-## ODrive Configuration
+## SparkFlex Configuration
 
-### 1. Individual ODrive Setup
-For each ODrive S1, configure via USB before CAN deployment:
+### 1. Individual SparkFlex Setup
+For each SparkFlex controller, configure via USB before CAN deployment using REV Hardware Client:
 
-```bash
-# Install ODrive Python tools
-pip install odrive
+**Using REV Hardware Client:**
+1. Download and install [REV Hardware Client](https://docs.revrobotics.com/rev-hardware-client/)
+2. Connect each SparkFlex via USB
+3. Configure each controller:
+   - **Set CAN ID**: 1, 2, 3, or 4 (front left, front right, rear left, rear right)
+   - **Motor Type**: Set to Brushless (for NEO motors)
+   - **Idle Mode**: Brake mode recommended
+   - **Current Limit**: 40A (adjust based on your motors)
+   - **Firmware**: Ensure firmware 24.0.X is installed (sparkcan requires 24.0.X, not 25.0.X)
 
-# Connect each ODrive via USB and configure:
-odrivetool
+4. Burn settings to flash and test motor direction
+5. Repeat for all four SparkFlex controllers
 
-# In odrivetool, configure each ODrive:
-odrv0.config.enable_brake_resistor = False  # Unless you have brake resistor
-odrv0.config.brake_resistance = 2.0
-
-# Configure CAN
-odrv0.config.can.node_id = 1  # Set to 1, 2, 3, or 4 respectively
-odrv0.config.can.baudrate = 1000000  # 1 Mbps
-
-# Motor configuration (adjust for your specific motor)
-odrv0.axis0.motor.config.current_limit = 10.0
-odrv0.axis0.motor.config.calibration_current = 10.0
-odrv0.axis0.motor.config.resistance_calib_max_voltage = 2.0
-odrv0.axis0.motor.config.pole_pairs = 7  # Adjust for your motor
-odrv0.axis0.motor.config.torque_constant = 0.04
-
-# Encoder configuration (ODrive S1 has built-in encoder)
-odrv0.axis0.encoder.config.cpr = 8192
-
-# Save configuration and reboot ODrive
-odrv0.save_configuration()
-odrv0.reboot()
-```
+**Important Notes:**
+- sparkcan library only works with firmware 24.0.X
+- Use REV Hardware Client to downgrade if you have 25.0.X
+- Ensure each controller has a unique CAN ID (1-4)
 
 ### 2. Verify CAN Communication
 ```bash
 # Setup CAN interface
 sudo bash ~/ros2_ws/src/lunabot_one/hardware/can/can_setup.sh
 
-# Monitor CAN traffic
+# Monitor CAN traffic (should see periodic heartbeat messages)
 candump can0
 
-# Send test message to ODrive (should see response)
-cansend can0 001#0100  # Request heartbeat from ODrive ID 1
+# You should see messages from SparkFlex controllers with IDs 1-4
+# SparkFlex automatically sends periodic status frames
 ```
 
 ## Launch Sequence
@@ -123,19 +113,17 @@ ros2 launch lunabot_one hardware_navigation.launch.py map:=/path/to/your/map.yam
 
 ## Configuration Files
 
-### Key Files to Customize
-1. **`hardware/can/odrive_can_ids.yaml`** - CAN ID mapping and robot dimensions
-2. **`hardware/odrive/motor_params.yaml`** - Motor-specific parameters
-3. **`config/control/hardware/hardware_controllers.yaml`** - ROS2 control configuration
-4. **`config/params/hardware_nav2_params.yaml`** - Navigation parameters for hardware
+### Key Parameters to Customize
+1. **`launch/hardware_bringup.launch.py`** - Motor CAN IDs and robot dimensions
+2. **`config/params/hardware_nav2_params.yaml`** - Navigation parameters for hardware
 
 ### Robot Dimensions
-Update these values in `hardware/can/odrive_can_ids.yaml`:
+Update these parameters in the launch file or via ROS2 parameters:
 ```yaml
-diff_drive:
-  wheel_separation: 0.782  # Distance between left/right wheels (m)
-  wheel_radius: 0.165      # Wheel radius (m)
-  max_velocity: 2.0        # Maximum linear velocity (m/s)
+wheel_separation: 0.7620  # Distance between left/right wheels (m) - 30 inches
+wheel_radius: 0.1778      # Wheel radius (m) - 7 inch wheels
+max_rpm: 5700.0           # Maximum motor RPM (NEO motor limit)
+current_limit: 40         # Current limit in amps
 ```
 
 ## Troubleshooting
@@ -154,21 +142,21 @@ sudo ip link set down can0
 sudo ip link set up can0
 ```
 
-### ODrive Communication Issues
+### SparkFlex Communication Issues
 ```bash
-# Check ODrive heartbeat (should see periodic messages)
-candump can0 | grep "heartbeat"
+# Check SparkFlex heartbeat (should see periodic messages from IDs 1-4)
+candump can0
 
-# Send specific ODrive commands
-cansend can0 001#0700  # Set axis state to IDLE
-cansend can0 001#0800  # Set axis state to CLOSED_LOOP_CONTROL
+# Verify CAN IDs are correct
+# Each SparkFlex should be sending periodic status frames
 ```
 
 ### Motor Not Moving
-1. **Check motor calibration** - ODrives need motor calibration on first use
-2. **Verify current limits** - May be set too low for your motors
-3. **Check enable state** - Motors must be enabled (closed-loop control)
-4. **Monitor error messages** - Use `candump can0` to see error codes
+1. **Check firmware version** - Must be 24.0.X (not 25.0.X)
+2. **Verify CAN IDs** - Each controller must have unique ID (1-4)
+3. **Check current limits** - Ensure limits are appropriate for NEO motors (40A recommended)
+4. **Verify motor type** - Must be set to Brushless in REV Hardware Client
+5. **Monitor error messages** - Check ROS2 node output for sparkcan errors
 
 ### Navigation Issues
 1. **Odometry drift** - Tune wheel separation multiplier in controller config
@@ -187,9 +175,9 @@ cansend can0 001#0800  # Set axis state to CLOSED_LOOP_CONTROL
 ## Performance Tuning
 
 ### Motor Control
-- Adjust current limits based on motor specifications
-- Tune PID parameters for smooth motion
-- Configure acceleration/deceleration limits
+- Adjust current limits based on motor specifications (40A for NEO motors)
+- Tune PID parameters for smooth motion (P and FF gains in driver node parameters)
+- Configure max RPM based on your motors (5700 RPM for NEO motors)
 
 ### Navigation
 - Reduce maximum velocities for safety

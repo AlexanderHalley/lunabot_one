@@ -6,9 +6,9 @@ if(NOT CMAKE_C_STANDARD)
   set(CMAKE_C_STANDARD 99)
 endif()
 
-# Default to C++14
+# Default to C++17 (required for sparkcan)
 if(NOT CMAKE_CXX_STANDARD)
-  set(CMAKE_CXX_STANDARD 14)
+  set(CMAKE_CXX_STANDARD 17)
 endif()
 
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
@@ -17,9 +17,16 @@ endif()
 
 # find dependencies
 find_package(ament_cmake REQUIRED)
-# uncomment the following section in order to fill in
-# further dependencies manually.
-# find_package(<dependency> REQUIRED)
+find_package(rclcpp REQUIRED)
+find_package(geometry_msgs REQUIRED)
+find_package(nav_msgs REQUIRED)
+find_package(sensor_msgs REQUIRED)
+find_package(tf2 REQUIRED)
+find_package(tf2_geometry_msgs REQUIRED)
+
+# Find sparkcan library (installed system-wide, not a ROS2 package)
+set(CMAKE_PREFIX_PATH "/usr/local/lib/cmake/sparkcan;${CMAKE_PREFIX_PATH}")
+find_package(sparkcan REQUIRED)
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
@@ -32,8 +39,26 @@ if(BUILD_TESTING)
   ament_lint_auto_find_test_dependencies()
 endif()
 
+# Build SparkFlex driver node
+add_executable(sparkflex_driver_node src/sparkflex_driver_node.cpp)
+ament_target_dependencies(sparkflex_driver_node
+  rclcpp
+  geometry_msgs
+  nav_msgs
+  sensor_msgs
+  tf2
+  tf2_geometry_msgs
+)
+target_link_libraries(sparkflex_driver_node sparkcan::sparkcan)
+
+# Install C++ executables
+install(TARGETS
+  sparkflex_driver_node
+  DESTINATION lib/${PROJECT_NAME}
+)
+
 install(
-  DIRECTORY config description launch worlds maps scripts
+  DIRECTORY config description launch worlds maps scripts hardware
   DESTINATION share/${PROJECT_NAME}
 )
 # install python scripts

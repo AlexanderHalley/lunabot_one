@@ -48,21 +48,23 @@ diff_drive_controller:
       x:
         has_velocity_limits: true
         has_acceleration_limits: true
-        has_jerk_limits: false
         max_velocity: 2.0
         min_velocity: -2.0
         max_acceleration: 1.0
         min_acceleration: -1.0
-        
+        max_jerk: .nan
+        min_jerk: .nan
+
     angular:
       z:
         has_velocity_limits: true
         has_acceleration_limits: true
-        has_jerk_limits: false
         max_velocity: 2.0
         min_velocity: -2.0
         max_acceleration: 1.5
         min_acceleration: -1.5
+        max_jerk: .nan
+        min_jerk: .nan
 
 # Joint State Broadcaster (publishes joint states for URDF visualization)
 joint_state_broadcaster:
