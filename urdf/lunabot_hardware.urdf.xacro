@@ -3,6 +3,7 @@
 
     <xacro:include filename="$(find lunabot_one)/description/robot_core.xacro" />
     <xacro:include filename="$(find lunabot_one)/description/lidar.xacro" />
+    <xacro:include filename="$(find lunabot_one)/description/oak_d_s2.xacro" />
     
     <!-- Hardware-specific ros2_control configuration -->
     <ros2_control name="RealRobot" type="system">
@@ -91,11 +92,23 @@
     </ros2_control>
 
     <!-- Hardware-specific lidar configuration (no Gazebo plugins) -->
-    <xacro:lidar_sensor 
-        name="lidar" 
+    <xacro:lidar_sensor
+        name="lidar"
         parent="chassis"
-        xyz="0.1 0 0.2" 
+        xyz="0.1 0 0.2"
         rpy="0 0 0"
         hardware="true"/>
+
+    <!-- OAK-D S2 Camera mounted at front of robot -->
+    <!-- Mounting position: front center, slightly elevated for better field of view -->
+    <xacro:oak_d_s2_camera
+        prefix="camera_"
+        parent_link="chassis"
+        x="0.4"
+        y="0"
+        z="0.15"
+        roll="0"
+        pitch="0"
+        yaw="0"/>
 
 </robot>

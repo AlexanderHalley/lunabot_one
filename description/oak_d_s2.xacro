@@ -1,0 +1,61 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <!-- OAK-D S2 Camera XACRO Definition -->
+  <!-- Intel RealSense OAK-D Stereo + RGB camera -->
+  <!-- Mounts at front of robot for stereo depth sensing and RGB image capture -->
+
+  <xacro:macro name="oak_d_s2_camera" params="prefix parent_link x y z roll pitch yaw">
+
+    <!-- Main camera link -->
+    <link name="${prefix}camera_link">
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <!-- OAK-D S2 approximate dimensions: 91mm x 27mm x 27mm -->
+          <box size="0.091 0.027 0.027"/>
+        </geometry>
+        <material name="black">
+          <color rgba="0.1 0.1 0.1 1.0"/>
+        </material>
+      </visual>
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <box size="0.091 0.027 0.027"/>
+        </geometry>
+      </collision>
+      <inertial>
+        <mass value="0.18"/>
+        <inertia ixx="0.00001" ixy="0.0" ixz="0.0" iyy="0.00001" iyz="0.0" izz="0.00001"/>
+      </inertial>
+    </link>
+
+    <!-- Joint connecting camera to parent (usually base_link) -->
+    <joint name="${prefix}camera_joint" type="fixed">
+      <origin xyz="${x} ${y} ${z}" rpy="${roll} ${pitch} ${yaw}"/>
+      <parent link="${parent_link}"/>
+      <child link="${prefix}camera_link"/>
+    </joint>
+
+    <!-- RGB Optical Frame (ROS standard: Z-forward, X-right, Y-down) -->
+    <link name="${prefix}camera_rgb_optical_frame"/>
+    <joint name="${prefix}camera_rgb_optical_joint" type="fixed">
+      <!-- ROS optical convention: rotate 90 degrees around X, then -90 around Z -->
+      <origin xyz="0 0 0" rpy="-1.5707963267948966 0 -1.5707963267948966"/>
+      <parent link="${prefix}camera_link"/>
+      <child link="${prefix}camera_rgb_optical_frame"/>
+    </joint>
+
+    <!-- Stereo Depth Optical Frame -->
+    <link name="${prefix}camera_stereo_optical_frame"/>
+    <joint name="${prefix}camera_stereo_optical_joint" type="fixed">
+      <!-- Same optical convention as RGB -->
+      <origin xyz="0 0 0" rpy="-1.5707963267948966 0 -1.5707963267948966"/>
+      <parent link="${prefix}camera_link"/>
+      <child link="${prefix}camera_stereo_optical_frame"/>
+    </joint>
+
+  </xacro:macro>
+
+</robot>

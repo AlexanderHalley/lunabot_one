@@ -33,6 +33,9 @@
   
   <!-- Hardware - SparkFlex with sparkcan library (CMake-only, not ROS2 package) -->
   
+  <!-- Camera drivers (hardware mode) -->
+  <depend>depthai-ros</depend>
+
   <!-- Lidar drivers (hardware mode) -->
   <!-- <depend>ldlidar_stl_ros2</depend> -->
   <!-- <depend>rplidar_ros</depend> -->

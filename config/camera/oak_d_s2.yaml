@@ -1,0 +1,67 @@
+# OAK-D S2 Camera Configuration
+# Intel RealSense OAK-D Stereo + RGB camera parameters
+
+oak_d_node:
+  ros__parameters:
+
+    # Device Configuration
+    device_name: "OAK-D S2"
+    device_type: "OAK-D"
+    stereo_depth:
+      enabled: true
+
+    # RGB Camera Settings
+    rgb:
+      enabled: true
+      fps: 30                      # Frames per second (30 or 60)
+      resolution: "1080P"          # "720P", "1080P", "400P", "800P", "1200P"
+      isp_scale: [2, 3]           # Scale for ISP (image signal processing)
+      interleave: false            # Interleave RGB and stereo data
+
+    # Stereo Depth Settings
+    stereo_depth:
+      enabled: true
+      fps: 30                      # Should match RGB fps
+      resolution: "400P"           # "400P" (400x400) or "800P" (800x800) for stereo
+      median_filter: 7             # 0-15, 0=disabled, typical values: 5, 7
+      confidence_threshold: 200    # 0-255, higher = more conservative
+      depth_lower_threshold: 400   # Min distance in mm
+      depth_upper_threshold: 5000  # Max distance in mm
+
+      # Depth Alignment
+      align_depth: "rgb"           # Align depth to RGB ("none", "rgb")
+
+      # Stereo Mode
+      stereo_mode: "adaptive"      # "adaptive" (default), "dot", "structured"
+
+      # LPI (Laser Pattern Intensity) - for OAK-D Pro, disabled for OAK-D S2
+      lpi: false
+
+    # Calibration
+    stereo_depth:
+      use_median:
+        value: 1
+        on_init: true
+
+    # Output Frames/Topics
+    base_frame: "camera_link"
+    camera_frame: "camera_rgb_optical_frame"
+    depth_frame: "camera_stereo_optical_frame"
+
+    # Point Cloud Generation
+    spatial_detection:
+      enabled: false
+
+    # Nodelet Configuration (for efficiency on Raspberry Pi)
+    use_nodelet: true
+    nodelet_manager: "depthai_manager"
+
+    # Publishing Rate Control
+    publish_tf: true              # Publish camera TF transforms
+    tf_freq: 30.0                 # TF publish frequency (Hz)
+
+    # Diagnostics
+    diagnostics_freq: 5.0         # Diagnostic message frequency (Hz)
+
+    # Debug
+    log_level: "INFO"             # "DEBUG", "INFO", "WARN", "ERROR"
