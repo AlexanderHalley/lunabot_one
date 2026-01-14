@@ -3,7 +3,7 @@
 Autonomous navigation system built for the NASA Lunabotics competition. Handles sandy terrain, outdoor lighting, and obstacle-rich environments using LIDAR-based SLAM with IMU drift correction.
 
 **Key Technical Features:**
-- Multi-LIDAR fusion (3x sensors, 270° coverage)
+- Multi-LIDAR fusion 
 - IMU-corrected odometry prevents wheel slip drift
 - SparkFlex motor control via CAN bus
 - Nav2 integration with custom waypoint patterns for testing
@@ -36,9 +36,9 @@ Autonomous navigation system built for the NASA Lunabotics competition. Handles 
 - **SparkCAN library** (install separately - see [SPARKCAN_SETUP.md](SPARKCAN_SETUP.md))
 - Raspberry Pi 5 (16GB RAM)
 - CAN HAT (Waveshare rs485 CAN HAT)
-- 4x SparkFlex Motor Controllers (firmware 24.0.X)
+- 4x SparkFlex Motor Controllers (firmware 24.0.0)
 - NEO Brushless motors
-- 3x Lidar sensors (LDLidar LD19, RPLidar, etc.)
+- 2x Lidar sensors (LDLidar LD19, RPLidar, etc.)
 
 See [BUILD_INSTRUCTIONS.md](BUILD_INSTRUCTIONS.md) for complete build guide and [HARDWARE_SETUP.md](HARDWARE_SETUP.md) for hardware configuration.
 
