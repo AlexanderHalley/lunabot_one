@@ -1,0 +1,227 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro"  >
+    
+    <xacro:include filename="inertial_macros.xacro"/>
+
+    <!-- Original chassis properties (restored for proper turning) -->
+    <xacro:property name="chassis_length" value="0.9652"/>      <!-- 38 in -->
+    <xacro:property name="chassis_width" value="0.6604"/>       <!-- 26 in - original width for proper turning -->
+    <xacro:property name="chassis_height" value="0.138"/>       <!-- kept original unless specified -->
+    <xacro:property name="chassis_mass" value="14.608"/>        <!-- full chassis -->
+
+    <!-- Original wheel properties -->
+    <xacro:property name="wheel_radius" value="0.1778"/>        <!-- 7 in -->
+    <xacro:property name="wheel_thickness" value="0.1016"/>     <!-- 4 in -->
+    <xacro:property name="wheel_mass" value="1.977"/>           <!-- wheel + hub + gearbox + motor -->
+
+    <!-- Original wheel offsets (restored for proper turning) -->
+    <xacro:property name="wheel_offset_x" value="0.4826"/>      <!-- half of chassis_length -->
+    <xacro:property name="wheel_offset_y" value="0.3810"/>      <!-- original offset for proper wheel separation -->
+    <xacro:property name="wheel_offset_z" value="0.0889"/>      <!-- ~3.5 in off ground -->
+
+    <!-- Global contact/friction parameters -->
+    <xacro:property name="wheel_mu" value="0.8"/>
+    <xacro:property name="wheel_mu2" value="0.8"/>
+    <xacro:property name="wheel_kp" value="1000000.0"/>
+    <xacro:property name="wheel_kd" value="1.0"/>
+    <xacro:property name="wheel_min_depth" value="0.001"/>
+    <xacro:property name="wheel_slip1" value="0.01"/>
+    <xacro:property name="wheel_slip2" value="0.01"/>
+
+    <!-- LIDAR properties -->
+    <xacro:property name="lidar_box_x" value="0.1270"/>   <!-- 5 in -->
+    <xacro:property name="lidar_box_y" value="0.1016"/>   <!-- 4 in -->
+    <xacro:property name="lidar_box_z" value="0.0508"/>   <!-- 2 in -->
+    <xacro:property name="lidar_box_mass" value="0.25"/>  <!-- kg -->
+
+    <material name="white">
+        <color rgba="1 1 1 1"/>
+    </material>
+
+    <material name="orange">
+        <color rgba="1 0.3 0.1 1"/>
+    </material>
+
+    <material name="blue">
+        <color rgba="0.2 0.2 1 1"/>
+    </material>
+
+    <material name="black">
+        <color rgba="0 0 0 1"/>
+    </material>
+
+    <!-- BASE LINK -->
+    <link name = "base_link">
+
+    </link>
+
+    <!-- CHASSIS LINK -->
+
+    <joint name = "chassis_joint" type = "fixed">
+        <parent link = "base_link"/> 
+        <child link = "chassis"/>
+        <origin xyz = "${-wheel_offset_x} 0 ${-wheel_offset_z}"/>
+
+    </joint>
+
+    <link name = "chassis">
+        <visual>
+            <origin xyz="${chassis_length/2} 0 ${chassis_height/2}"/>
+            <geometry>
+                <box size = "${chassis_length} ${chassis_width} ${chassis_height}"/>
+            </geometry>
+            <material name="orange"/>
+        </visual>
+        <collision>
+            <origin xyz="${chassis_length/2} 0 ${chassis_height/2}"/>
+            <geometry>
+                <box size = "${chassis_length} ${chassis_width} ${chassis_height}"/>
+            </geometry>
+            <material name="orange"/>
+        </collision>
+        <xacro:inertial_box mass="${chassis_mass}" x="${chassis_length}" y="${chassis_width}" z="${chassis_height}">
+            <origin xyz="${chassis_length/2} 0 ${chassis_height/2}" rpy="0 0 0"/>
+        </xacro:inertial_box>
+    </link>
+
+
+    <!-- LEFT FRONT WHEEL LINK  -->
+    <joint name="left_front_wheel_joint" type="continuous">
+        <parent link="base_link"/>
+        <child link="left_front_wheel"/>
+        <origin xyz="${wheel_offset_x - 0.05} ${wheel_offset_y} 0" rpy="-${pi/2} 0 0" />
+        <axis xyz="0 0 1"/>
+        <dynamics damping="0.7" friction="0.3"/>
+    </joint>
+
+    <link name="left_front_wheel">
+        <visual>
+            <geometry>
+                <cylinder radius="${wheel_radius}" length="${wheel_thickness}"/>
+            </geometry>
+            <material name="blue"/>
+        </visual>
+        <collision>
+            <geometry>
+                <cylinder radius="${wheel_radius}" length="${wheel_thickness}"/>
+            </geometry>
+        </collision>
+        <xacro:inertial_cylinder mass="${wheel_mass}" length="${wheel_thickness}" radius="${wheel_radius}">
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+        </xacro:inertial_cylinder>
+    </link>
+
+    
+    <!-- RIGHT FRONT WHEEL LINK  -->
+    <joint name="right_front_wheel_joint" type="continuous">
+        <parent link="base_link"/>
+        <child link="right_front_wheel"/>
+        <origin xyz="${wheel_offset_x - 0.05} ${-wheel_offset_y} 0" rpy="${pi/2} 0 0" />
+        <axis xyz="0 0 -1"/>
+        <dynamics damping="0.7" friction="0.3"/>
+    </joint>
+
+    <link name="right_front_wheel">
+        <visual>
+            <geometry>
+                <cylinder radius="${wheel_radius}" length="${wheel_thickness}"/>
+            </geometry>
+            <material name="blue"/>
+        </visual>
+        <collision>
+            <geometry>
+                <cylinder radius="${wheel_radius}" length="${wheel_thickness}"/>
+            </geometry>
+        </collision>
+        <xacro:inertial_cylinder mass="${wheel_mass}" length="${wheel_thickness}" radius="${wheel_radius}">
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+        </xacro:inertial_cylinder>
+    </link>
+
+
+ <!-- LEFT REAR WHEEL LINK -->
+    <joint name="left_wheel_joint" type="continuous">
+        <parent link="base_link"/>
+        <child link="left_wheel"/>
+        <origin xyz="${-wheel_offset_x + 0.05} ${wheel_offset_y} 0" rpy="-${pi/2} 0 0" />
+        <axis xyz="0 0 1"/>
+        <dynamics damping="0.7" friction="0.3"/>
+    </joint>
+
+    <link name="left_wheel">
+        <visual>
+            <geometry>
+                <cylinder radius="${wheel_radius}" length="${wheel_thickness}"/>
+            </geometry>
+            <material name="blue"/>
+        </visual>
+        <collision>
+            <geometry>
+                <cylinder radius="${wheel_radius}" length="${wheel_thickness}"/>
+            </geometry>
+        </collision>
+        <xacro:inertial_cylinder mass="${wheel_mass}" length="${wheel_thickness}" radius="${wheel_radius}">
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+        </xacro:inertial_cylinder>
+    </link>
+
+
+    <!-- RIGHT REAR WHEEL LINK  -->
+    <joint name="right_wheel_joint" type="continuous">
+        <parent link="base_link"/>
+        <child link="right_wheel"/>
+        <origin xyz="${-wheel_offset_x + 0.05} ${-wheel_offset_y} 0" rpy="${pi/2} 0 0" />
+        <axis xyz="0 0 -1"/>
+        <dynamics damping="0.7" friction="0.3"/>
+    </joint>
+
+    <link name="right_wheel">
+        <visual>
+            <geometry>
+                <cylinder radius="${wheel_radius}" length="${wheel_thickness}"/>
+            </geometry>
+            <material name="blue"/>
+        </visual>
+        <collision>
+            <geometry>
+                <cylinder radius="${wheel_radius}" length="${wheel_thickness}"/>
+            </geometry>
+        </collision>
+        <xacro:inertial_cylinder mass="${wheel_mass}" length="${wheel_thickness}" radius="${wheel_radius}">
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+        </xacro:inertial_cylinder>
+    </link>
+
+
+    <!-- LIDAR CAMERA (rectangle box (mounted on top-front of chassis)) -->
+
+    <joint name="lidar_joint" type="fixed">
+    <parent link="chassis"/>
+    <child link="lidar_box_link"/>
+    <origin
+        xyz="${chassis_length + lidar_box_x/2} 0 ${chassis_height + lidar_box_z/2}"
+        rpy="0 0 0"/>
+    </joint>
+
+    <link name="lidar_box_link">
+    <visual>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+        <box size="${lidar_box_x} ${lidar_box_y} ${lidar_box_z}"/>
+        </geometry>
+        <material name="black"/>
+    </visual>
+
+    <collision>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+        <box size="${lidar_box_x} ${lidar_box_y} ${lidar_box_z}"/>
+        </geometry>
+    </collision>
+    <xacro:inertial_box
+        mass="${lidar_box_mass}" x="${lidar_box_x}" y="${lidar_box_y}" z="${lidar_box_z}">
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+    </xacro:inertial_box>
+    </link>
+
+</robot>
